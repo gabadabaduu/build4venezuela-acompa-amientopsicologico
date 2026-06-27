@@ -1,26 +1,28 @@
 <div class="page">
   <h1>Mi Perfil</h1>
 
-  @if (loading()) {
+  @if (profileResource.isLoading()) {
     <p>Cargando perfil...</p>
+  } @else if (profileResource.error()) {
+    <p class="error">Error al cargar el perfil</p>
   } @else {
-    <div class="form">
+    <form [formGroup]="editForm" (ngSubmit)="save()" class="form">
       <label>
         Nombre completo
-        <input type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" />
+        <input type="text" formControlName="fullName" />
       </label>
 
       <label>
         Teléfono
-        <input type="tel" [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone" />
+        <input type="tel" formControlName="phone" />
       </label>
 
       <label>
         Biografía
-        <textarea [ngModel]="bio()" (ngModelChange)="bio.set($event)" name="bio" rows="4"></textarea>
+        <textarea formControlName="bio" rows="4"></textarea>
       </label>
 
-      @if (profile(); as p) {
+      @if (profileResource.value(); as p) {
         <p class="role">Rol: {{ p.role === 'psychologist' ? 'Psicólogo/a' : 'Paciente' }}</p>
       }
 
@@ -28,10 +30,10 @@
         <p class="message">{{ message() }}</p>
       }
 
-      <button (click)="save()" [disabled]="saving()">
+      <button type="submit" [disabled]="saving() || editForm.invalid">
         {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
       </button>
-    </div>
+    </form>
   }
 
   <p class="link">

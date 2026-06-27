@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
-import type { User as SupabaseAuthUser, Session } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 
 export interface AuthUser {
   id: string;
@@ -18,27 +18,52 @@ export class AuthService {
   readonly isLoading = signal(true);
 
   constructor() {
-    this.supabase.client.auth.getSession().then(({ data: { session } }) => {
-      this.handleAuthStateChange(session);
-      this.isLoading.set(false);
-    });
+    this.supabase.client.auth
+      .getSession()
+      .then(({ data: { session } }) => this.handleAuthStateChange(session))
+      .catch(() => this.currentUser.set(null))
+      .finally(() => this.isLoading.set(false));
 
-    this.supabase.client.auth.onAuthStateChange((event, session) => {
+    this.supabase.client.auth.onAuthStateChange((_event, session) => {
       this.handleAuthStateChange(session);
     });
   }
 
-  async signUp(email: string, password: string, fullName: string, role: 'patient' | 'psychologist') {
-    const { data, error } = await this.supabase.client.auth.signUp({ email, password });
+  async waitUntilReady(): Promise<void> {
+    if (!this.isLoading()) {
+      return;
+    }
 
-    if (error) throw error;
-    if (!data.user) throw new Error('Sign-up failed: no user returned');
+    return new Promise((resolve) => {
+      const check = (): void => {
+        if (!this.isLoading()) {
+          resolve();
+        } else {
+          setTimeout(check, 10);
+        }
+      };
+      check();
+    });
+  }
 
-    const { error: profileError } = await this.supabase.client
-      .from('profiles')
-      .insert({ id: data.user.id, full_name: fullName, role });
+  async signUp(email: string, password: string, fullName: string) {
+    const role = 'patient' as const;
 
-    if (profileError) throw profileError;
+    const { data, error } = await this.supabase.client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, role },
+      },
+    });
+
+    if (error) {
+      console.error('Sign-up failed:', error.message);
+      throw error;
+    }
+    if (!data.user) {
+      throw new Error('Sign-up failed: no user returned');
+    }
 
     return data;
   }

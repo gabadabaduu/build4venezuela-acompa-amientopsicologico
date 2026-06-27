@@ -3,6 +3,7 @@
   <div class="nav-links">
     @if (auth.isAuthenticated()) {
       <a routerLink="/dashboard">Panel</a>
+      <a routerLink="/resources">Recursos</a>
       <a routerLink="/profile">Perfil</a>
       <button class="btn-logout" (click)="auth.signOut()">Salir</button>
     } @else {

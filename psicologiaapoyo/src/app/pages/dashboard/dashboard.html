@@ -3,57 +3,114 @@
     <h1>PsicologíaApoyo</h1>
     <nav>
       <a routerLink="/profile">Mi Perfil</a>
+      <a routerLink="/resources">Recursos</a>
       <button (click)="auth.signOut()">Cerrar sesión</button>
     </nav>
   </header>
 
-  <h2>Mis Sesiones</h2>
-
-  <div class="new-session">
-    <h3>Solicitar nueva sesión</h3>
-    <div class="form">
-      <label>
-        Fecha y hora
-        <input type="datetime-local" [ngModel]="scheduledAt()" (ngModelChange)="scheduledAt.set($event)" name="scheduledAt" />
-      </label>
-      <label>
-        Notas
-        <textarea [ngModel]="notes()" (ngModelChange)="notes.set($event)" name="notes" rows="3"></textarea>
-      </label>
-      <button (click)="createSession()" [disabled]="creating()">
-        {{ creating() ? 'Creando...' : 'Solicitar' }}
-      </button>
-    </div>
-  </div>
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
 
   @if (loading()) {
-    <p>Cargando sesiones...</p>
-  } @else if (sessions().length === 0) {
-    <p>No tienes sesiones aún.</p>
-  } @else {
-    <div class="session-list">
-      @for (session of sessions(); track session.id) {
-        <div class="session-card" [class]="'status-' + session.status">
-          <div class="session-info">
-            <span class="status-badge">{{ statusLabel(session.status) }}</span>
-            @if (session.scheduled_at) {
-              <span>{{ session.scheduled_at | date:'medium' }}</span>
-            }
-            @if (session.notes) {
-              <p>{{ session.notes }}</p>
-            }
+    <p>Cargando...</p>
+  } @else if (role() === 'patient') {
+    <h2>Mis Sesiones</h2>
+
+    <div class="new-session">
+      <h3>Solicitar nueva sesión</h3>
+      <form [formGroup]="sessionForm" (ngSubmit)="createSession()" class="form">
+        <label>
+          Fecha y hora
+          <input type="datetime-local" formControlName="scheduledAt" />
+        </label>
+        <label>
+          Notas
+          <textarea formControlName="notes" rows="3"></textarea>
+        </label>
+        <button type="submit" [disabled]="creating() || sessionForm.invalid">
+          {{ creating() ? 'Creando...' : 'Solicitar' }}
+        </button>
+      </form>
+    </div>
+
+    @if (patientSessions().length === 0) {
+      <p>No tienes sesiones aún.</p>
+    } @else {
+      <div class="session-list">
+        @for (session of patientSessions(); track session.id) {
+          <div class="session-card" [class]="'status-' + session.status">
+            <div class="session-info">
+              <span class="status-badge">{{ statusLabel(session.status) }}</span>
+              @if (session.scheduled_at) {
+                <span>{{ session.scheduled_at | date:'medium' }}</span>
+              }
+              @if (session.notes) {
+                <p>{{ session.notes }}</p>
+              }
+            </div>
           </div>
-          <div class="session-actions">
-            @if (session.status === 'pending') {
-              <button class="accept" (click)="updateStatus(session.id, 'accepted')">Aceptar</button>
-              <button class="reject" (click)="updateStatus(session.id, 'rejected')">Rechazar</button>
-            }
-            @if (session.status === 'accepted') {
-              <button (click)="updateStatus(session.id, 'completed')">Completar</button>
-            }
-          </div>
+        }
+      </div>
+    }
+  } @else if (role() === 'psychologist') {
+    <h2>Panel de Psicólogo/a</h2>
+
+    <section>
+      <h3>Sesiones pendientes</h3>
+      @if (pendingSessions().length === 0) {
+        <p>No hay sesiones pendientes.</p>
+      } @else {
+        <div class="session-list">
+          @for (session of pendingSessions(); track session.id) {
+            <div class="session-card status-pending">
+              <div class="session-info">
+                <span class="status-badge">{{ statusLabel(session.status) }}</span>
+                @if (session.scheduled_at) {
+                  <span>{{ session.scheduled_at | date:'medium' }}</span>
+                }
+                @if (session.notes) {
+                  <p>{{ session.notes }}</p>
+                }
+              </div>
+              <div class="session-actions">
+                <button class="accept" (click)="updateStatus(session.id, 'accepted')">Aceptar</button>
+                <button class="reject" (click)="updateStatus(session.id, 'rejected')">Rechazar</button>
+              </div>
+            </div>
+          }
         </div>
       }
-    </div>
+    </section>
+
+    <section>
+      <h3>Sesiones aceptadas y completadas</h3>
+      @if (activeSessions().length === 0) {
+        <p>No tienes sesiones activas.</p>
+      } @else {
+        <div class="session-list">
+          @for (session of activeSessions(); track session.id) {
+            <div class="session-card" [class]="'status-' + session.status">
+              <div class="session-info">
+                <span class="status-badge">{{ statusLabel(session.status) }}</span>
+                @if (session.scheduled_at) {
+                  <span>{{ session.scheduled_at | date:'medium' }}</span>
+                }
+                @if (session.notes) {
+                  <p>{{ session.notes }}</p>
+                }
+              </div>
+              @if (session.status === 'accepted') {
+                <div class="session-actions">
+                  <button (click)="updateStatus(session.id, 'completed')">Completar</button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+  } @else {
+    <p>No se pudo determinar tu rol. Revisá tu perfil.</p>
   }
 </div>

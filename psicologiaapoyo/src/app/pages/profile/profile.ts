@@ -1,6 +1,6 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
 import type { Profile } from '../../models/user.model';
@@ -8,45 +8,51 @@ import type { Profile } from '../../models/user.model';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './profile.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePage {
   private readonly auth = inject(AuthService);
   private readonly profileService = inject(ProfileService);
+  private readonly fb = inject(FormBuilder);
 
-  profile = signal<Profile | null>(null);
-  fullName = signal('');
-  phone = signal('');
-  bio = signal('');
-  loading = signal(true);
   saving = signal(false);
   message = signal('');
 
+  profileResource = resource({
+    loader: async () => {
+      const userId = this.auth.currentUser()?.id;
+      if (!userId) return null;
+      return this.profileService.getProfile(userId);
+    },
+  });
+
+  editForm = this.fb.nonNullable.group({
+    fullName: ['', Validators.required],
+    phone: [''],
+    bio: [''],
+  });
+
   constructor() {
     effect(() => {
-      const user = this.auth.currentUser();
-      if (user) {
-        this.loadProfile(user.id);
+      const profile = this.profileResource.value();
+      if (profile) {
+        this.editForm.patchValue({
+          fullName: profile.full_name,
+          phone: profile.phone ?? '',
+          bio: profile.bio ?? '',
+        });
       }
     });
   }
 
-  private async loadProfile(userId: string) {
-    try {
-      const p = await this.profileService.getProfile(userId);
-      this.profile.set(p);
-      this.fullName.set(p?.full_name ?? '');
-      this.phone.set(p?.phone ?? '');
-      this.bio.set(p?.bio ?? '');
-    } catch {
-      this.message.set('Error al cargar el perfil');
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
   async save() {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
     const user = this.auth.currentUser();
     if (!user) return;
 
@@ -54,13 +60,14 @@ export class ProfilePage {
     this.message.set('');
 
     try {
-      const updated = await this.profileService.updateProfile(user.id, {
-        full_name: this.fullName(),
-        phone: this.phone(),
-        bio: this.bio(),
+      const { fullName, phone, bio } = this.editForm.getRawValue();
+      await this.profileService.updateProfile(user.id, {
+        full_name: fullName,
+        phone: phone || undefined,
+        bio: bio || undefined,
       });
-      this.profile.set(updated);
       this.message.set('Perfil actualizado');
+      this.profileResource.reload();
     } catch (err: unknown) {
       this.message.set(err instanceof Error ? err.message : 'Error al guardar');
     } finally {

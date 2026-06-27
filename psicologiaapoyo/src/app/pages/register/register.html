@@ -1,35 +1,29 @@
 <div class="page">
   <h1>Registro</h1>
 
-  <form (ngSubmit)="onSubmit()" class="form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label>
       Nombre completo
-      <input type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" required />
+      <input type="text" formControlName="fullName" />
     </label>
 
     <label>
       Correo electrónico
-      <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" required />
+      <input type="email" formControlName="email" />
     </label>
 
     <label>
       Contraseña
-      <input type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" required />
+      <input type="password" formControlName="password" />
     </label>
 
-    <label>
-      Rol
-      <select [ngModel]="role()" (ngModelChange)="role.set($event)" name="role">
-        <option value="patient">Paciente</option>
-        <option value="psychologist">Psicólogo/a</option>
-      </select>
-    </label>
+    <p class="info">El registro crea una cuenta de paciente.</p>
 
     @if (error()) {
       <p class="error">{{ error() }}</p>
     }
 
-    <button type="submit" [disabled]="loading()">
+    <button type="submit" [disabled]="loading() || form.invalid">
       {{ loading() ? 'Registrando...' : 'Registrarse' }}
     </button>
   </form>

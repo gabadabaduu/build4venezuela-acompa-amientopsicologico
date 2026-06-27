@@ -1,0 +1,31 @@
+<div class="page">
+  <header class="header">
+    <h1>Recursos</h1>
+    <nav>
+      <a routerLink="/dashboard">Panel</a>
+    </nav>
+  </header>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p>Cargando recursos...</p>
+  } @else if (resources().length === 0) {
+    <p>No hay recursos publicados aún.</p>
+  } @else {
+    <div class="resource-list">
+      @for (resource of resources(); track resource.id) {
+        <article class="resource-card">
+          <h2>{{ resource.title }}</h2>
+          <span class="type-badge">{{ typeLabel(resource.type) }}</span>
+          @if (resource.description) {
+            <p>{{ resource.description }}</p>
+          }
+          <p class="meta">{{ resource.created_at | date:'mediumDate' }}</p>
+        </article>
+      }
+    </div>
+  }
+</div>

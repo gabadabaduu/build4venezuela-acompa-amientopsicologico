@@ -12,19 +12,26 @@ export class SessionService {
     const user = this.auth.currentUser();
     if (!user) throw new Error('Not authenticated');
 
-    const { data: profile } = await this.supabase.client
+    const { data: profile, error: profileError } = await this.supabase.client
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    const role = profile?.role;
+    if (profileError || !profile) {
+      return [];
+    }
+
     const query = this.supabase.client.from('sessions').select('*');
 
-    if (role === 'patient') {
+    if (profile.role === 'patient') {
       query.eq('patient_id', user.id);
+    } else if (profile.role === 'psychologist') {
+      query.or(
+        `psychologist_id.eq.${user.id},and(psychologist_id.is.null,status.eq.pending)`,
+      );
     } else {
-      query.eq('psychologist_id', user.id);
+      return [];
     }
 
     const { data, error } = await query.order('scheduled_at', { ascending: true });
@@ -44,9 +51,28 @@ export class SessionService {
   }
 
   async updateSessionStatus(id: string, status: SessionStatus) {
+    const user = this.auth.currentUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const updates: { status: SessionStatus; psychologist_id?: string } = { status };
+
+    if (status === 'accepted') {
+      const { data: profile, error: profileError } = await this.supabase.client
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile || profile.role !== 'psychologist') {
+        throw new Error('Only psychologists can accept sessions');
+      }
+
+      updates.psychologist_id = user.id;
+    }
+
     const { data, error } = await this.supabase.client
       .from('sessions')
-      .update({ status })
+      .update(updates)
       .eq('id', id)
       .select()
       .single();

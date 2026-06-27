@@ -1,22 +1,26 @@
 <div class="page">
   <h1>Iniciar Sesión</h1>
 
-  <form (ngSubmit)="onSubmit()" class="form">
+  @if (infoMessage()) {
+    <p class="info">{{ infoMessage() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label>
       Correo electrónico
-      <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" required />
+      <input type="email" formControlName="email" />
     </label>
 
     <label>
       Contraseña
-      <input type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" required />
+      <input type="password" formControlName="password" />
     </label>
 
     @if (error()) {
       <p class="error">{{ error() }}</p>
     }
 
-    <button type="submit" [disabled]="loading()">
+    <button type="submit" [disabled]="loading() || form.invalid">
       {{ loading() ? 'Ingresando...' : 'Ingresar' }}
     </button>
   </form>

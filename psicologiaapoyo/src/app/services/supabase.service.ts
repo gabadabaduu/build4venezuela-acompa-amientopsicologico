@@ -7,5 +7,12 @@ export class SupabaseService {
   readonly client: SupabaseClient = createClient(
     environment.supabase.url,
     environment.supabase.anonKey,
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    },
   );
 }

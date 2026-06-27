@@ -4,7 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = async () => {
+export const guestGuard: CanActivateFn = async () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
@@ -12,8 +12,8 @@ export const authGuard: CanActivateFn = async () => {
   await firstValueFrom(ready$);
 
   if (auth.isAuthenticated()) {
-    return true;
+    return router.parseUrl('/dashboard');
   }
 
-  return router.parseUrl('/login');
+  return true;
 };
