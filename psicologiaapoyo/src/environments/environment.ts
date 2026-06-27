@@ -8,9 +8,9 @@ export const environment = {
   production: false,
   supabase: {
     // TODO: Replace with your Supabase project URL (e.g., https://xxxxxxxxxxxx.supabase.co)
-    url: 'https://your-project-id.supabase.co',
+    url: 'https://qrsfnihnoiyzwvhoaisz.supabase.co',
 
     // TODO: Replace with your Supabase anon/public key
-    anonKey: 'your-anon-key-here',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyc2ZuaWhub2l5end2aG9haXN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1Mzc3MDAsImV4cCI6MjA5ODExMzcwMH0.Tl1IO0NHO7lX-3ypnddqMOLRHYYJG2tft9cxua7h4nA',
   },
 };
