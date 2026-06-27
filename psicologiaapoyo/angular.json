@@ -17,6 +17,10 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "define": {
+              "process.env.SUPABASE_URL": "\"https://your-project-id.supabase.co\"",
+              "process.env.SUPABASE_ANON_KEY": "\"your-anon-key-here\""
+            },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
