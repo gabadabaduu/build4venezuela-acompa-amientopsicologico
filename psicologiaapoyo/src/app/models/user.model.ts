@@ -1,7 +1,7 @@
 export interface Profile {
   id: string;
   full_name: string;
-  role: 'patient' | 'psychologist';
+  role: 'psychologist';
   phone?: string;
   bio?: string;
   avatar_url?: string;

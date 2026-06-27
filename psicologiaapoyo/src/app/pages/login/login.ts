@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [FormsModule, RouterLink],
   templateUrl: './login.html',
+  styleUrl: './login.css',
 })
 export class LoginPage {
   private readonly auth = inject(AuthService);
