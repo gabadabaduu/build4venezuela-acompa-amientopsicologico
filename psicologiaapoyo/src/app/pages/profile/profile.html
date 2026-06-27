@@ -1,0 +1,40 @@
+<div class="page">
+  <h1>Mi Perfil</h1>
+
+  @if (loading()) {
+    <p>Cargando perfil...</p>
+  } @else {
+    <div class="form">
+      <label>
+        Nombre completo
+        <input type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" />
+      </label>
+
+      <label>
+        Teléfono
+        <input type="tel" [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone" />
+      </label>
+
+      <label>
+        Biografía
+        <textarea [ngModel]="bio()" (ngModelChange)="bio.set($event)" name="bio" rows="4"></textarea>
+      </label>
+
+      @if (profile(); as p) {
+        <p class="role">Rol: {{ p.role === 'psychologist' ? 'Psicólogo/a' : 'Paciente' }}</p>
+      }
+
+      @if (message()) {
+        <p class="message">{{ message() }}</p>
+      }
+
+      <button (click)="save()" [disabled]="saving()">
+        {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </div>
+  }
+
+  <p class="link">
+    <a routerLink="/dashboard">Volver al panel</a>
+  </p>
+</div>

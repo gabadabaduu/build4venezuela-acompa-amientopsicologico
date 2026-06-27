@@ -1,0 +1,27 @@
+<div class="page">
+  <h1>Iniciar Sesión</h1>
+
+  <form (ngSubmit)="onSubmit()" class="form">
+    <label>
+      Correo electrónico
+      <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" required />
+    </label>
+
+    <label>
+      Contraseña
+      <input type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" required />
+    </label>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+  </form>
+
+  <p class="link">
+    ¿No tienes cuenta? <a routerLink="/register">Regístrate</a>
+  </p>
+</div>
