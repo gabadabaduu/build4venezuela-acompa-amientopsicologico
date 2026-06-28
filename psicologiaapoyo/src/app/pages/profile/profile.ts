@@ -85,8 +85,8 @@ export class ProfilePage {
         bio: this.bio(),
       };
 
-      // Solo guardar campos profesionales si el rol es psychologist
-      if (current.role === 'psychologist') {
+      // Solo guardar campos profesionales si el rol es volunteer
+      if (current.role === 'volunteer') {
         payload.professional_name = this.professionalName();
         payload.specialty = this.specialty();
         payload.presentation = this.presentation();

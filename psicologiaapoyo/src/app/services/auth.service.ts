@@ -28,7 +28,7 @@ export class AuthService {
     });
   }
 
-  async signUp(email: string, password: string, fullName: string, role: 'patient' | 'psychologist') {
+  async signUp(email: string, password: string, fullName: string, role: 'volunteer' | 'admin') {
     const { data, error } = await this.supabase.client.auth.signUp({ email, password });
 
     if (error) throw error;

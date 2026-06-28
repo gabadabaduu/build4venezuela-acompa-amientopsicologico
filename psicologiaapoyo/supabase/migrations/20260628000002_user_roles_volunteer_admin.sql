@@ -1,16 +1,14 @@
--- Volunteer assignment for open guest sessions and registered sessions
+-- Replace patient/psychologist roles with volunteer/admin
 
-ALTER TABLE guest_sessions
-  ADD COLUMN IF NOT EXISTS volunteer_id UUID REFERENCES profiles(id);
+UPDATE profiles SET role = 'volunteer' WHERE role = 'psychologist';
+UPDATE profiles SET role = 'admin' WHERE role = 'patient';
 
-CREATE INDEX IF NOT EXISTS guest_sessions_volunteer_id_idx ON guest_sessions (volunteer_id);
-CREATE INDEX IF NOT EXISTS guest_sessions_unassigned_idx
-  ON guest_sessions (created_at DESC)
-  WHERE status = 'not_assigned' AND volunteer_id IS NULL;
+ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+ALTER TABLE profiles ADD CONSTRAINT profiles_role_check
+  CHECK (role IN ('volunteer', 'admin'));
 
-ALTER TABLE sessions ALTER COLUMN status SET DEFAULT 'not_assigned';
-
--- Psychologists can browse the unassigned pool (assignments go through Edge Function RPC)
+-- RLS policies: psychologist -> volunteer
+DROP POLICY IF EXISTS "Psychologists view unassigned guest sessions" ON guest_sessions;
 CREATE POLICY "Volunteers view unassigned guest sessions"
   ON guest_sessions FOR SELECT TO authenticated
   USING (
@@ -21,6 +19,7 @@ CREATE POLICY "Volunteers view unassigned guest sessions"
     )
   );
 
+DROP POLICY IF EXISTS "Psychologists view own assigned guest sessions" ON guest_sessions;
 CREATE POLICY "Volunteers view own assigned guest sessions"
   ON guest_sessions FOR SELECT TO authenticated
   USING (
@@ -30,11 +29,28 @@ CREATE POLICY "Volunteers view own assigned guest sessions"
     )
   );
 
+DROP POLICY IF EXISTS "Psychologists view unassigned sessions" ON sessions;
 CREATE POLICY "Volunteers view unassigned sessions"
   ON sessions FOR SELECT TO authenticated
   USING (
     status = 'not_assigned'
     AND psychologist_id IS NULL
+    AND EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'volunteer'
+    )
+  );
+
+DROP POLICY IF EXISTS "Psychologists update assigned guest sessions" ON guest_sessions;
+CREATE POLICY "Volunteers update assigned guest sessions"
+  ON guest_sessions FOR UPDATE TO authenticated
+  USING (
+    volunteer_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'volunteer'
+    )
+  )
+  WITH CHECK (
+    volunteer_id = auth.uid()
     AND EXISTS (
       SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'volunteer'
     )
@@ -111,18 +127,3 @@ BEGIN
   RETURN v_result;
 END;
 $$;
-
-CREATE POLICY "Volunteers update assigned guest sessions"
-  ON guest_sessions FOR UPDATE TO authenticated
-  USING (
-    volunteer_id = auth.uid()
-    AND EXISTS (
-      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'volunteer'
-    )
-  )
-  WITH CHECK (
-    volunteer_id = auth.uid()
-    AND EXISTS (
-      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'volunteer'
-    )
-  );

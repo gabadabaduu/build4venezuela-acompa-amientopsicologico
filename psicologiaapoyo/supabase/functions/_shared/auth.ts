@@ -97,7 +97,7 @@ export async function getAuthenticatedVolunteer(req: Request): Promise<string> {
     .eq('id', user.id)
     .single();
 
-  if (profileError || profile?.role !== 'psychologist') {
+  if (profileError || profile?.role !== 'volunteer') {
     throw new AuthError('Only volunteers can assign sessions');
   }
 

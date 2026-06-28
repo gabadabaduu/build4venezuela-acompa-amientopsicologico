@@ -33,10 +33,10 @@ export class SessionService {
     const role = profile?.role;
     const query = this.supabase.client.from('sessions').select('*');
 
-    if (role === 'patient') {
-      query.eq('patient_id', user.id);
-    } else {
+    if (role === 'volunteer') {
       query.eq('psychologist_id', user.id);
+    } else {
+      return [];
     }
 
     const { data, error } = await query.order('scheduled_at', { ascending: true });

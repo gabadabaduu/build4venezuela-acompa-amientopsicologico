@@ -1,0 +1,57 @@
+<div class="admin-page">
+  <div class="admin-card">
+    <div class="brand">
+      <div class="brand-badge">PA</div>
+      <div>
+        <h1>Panel de administración</h1>
+        <p>Gestión interna</p>
+      </div>
+    </div>
+
+    <form class="admin-form" (ngSubmit)="onSubmit()">
+      <label for="name">Nombre</label>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        placeholder="Nombre completo"
+        required
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+      />
+
+      <label for="email">Correo electrónico</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="correo@ejemplo.com"
+        required
+        [ngModel]="email()"
+        (ngModelChange)="email.set($event)"
+      />
+
+      <label for="phone">Teléfono</label>
+      <input
+        id="phone"
+        name="phone"
+        type="tel"
+        placeholder="+58 412-0000000"
+        required
+        [ngModel]="phone()"
+        (ngModelChange)="phone.set($event)"
+      />
+
+      @if (submitted()) {
+        <p class="success">Formulario enviado (vista de prueba).</p>
+      }
+
+      <button type="submit">Enviar</button>
+    </form>
+
+    <div class="actions">
+      <a routerLink="/dashboard">Ir al inicio</a>
+      <button type="button" class="link-btn" (click)="signOut()">Cerrar sesión</button>
+    </div>
+  </div>
+</div>

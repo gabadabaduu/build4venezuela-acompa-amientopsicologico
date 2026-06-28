@@ -60,7 +60,7 @@ export class DashboardPage implements OnInit {
       if (!user) return;
 
       const profile = await this.profileService.getProfile(user.id);
-      const volunteer = profile?.role === 'psychologist';
+      const volunteer = profile?.role === 'volunteer';
       this.isVolunteer.set(volunteer);
 
       if (volunteer) {

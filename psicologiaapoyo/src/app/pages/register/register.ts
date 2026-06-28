@@ -16,7 +16,7 @@ export class RegisterPage {
   email = signal('');
   password = signal('');
   fullName = signal('');
-  role = signal<'patient' | 'psychologist'>('patient');
+  role = signal<'volunteer' | 'admin'>('volunteer');
   error = signal('');
   loading = signal(false);
 
@@ -25,8 +25,9 @@ export class RegisterPage {
     this.error.set('');
 
     try {
-      await this.auth.signUp(this.email(), this.password(), this.fullName(), this.role());
-      this.router.navigate(['/dashboard']);
+      const selectedRole = this.role();
+      await this.auth.signUp(this.email(), this.password(), this.fullName(), selectedRole);
+      this.router.navigate([selectedRole === 'admin' ? '/admin' : '/profile']);
     } catch (err: unknown) {
       this.error.set(err instanceof Error ? err.message : 'Error al registrarse');
     } finally {
