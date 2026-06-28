@@ -75,6 +75,16 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  async onAuthAction() {
+  if (this.isLoggedIn()) {
+    await this.auth.signOut();
+    this.router.navigate(['/dashboard']);
+  } else {
+    this.router.navigate(['/login']);
+  }
+}
+
+
   async createSession() {
     const user = this.auth.currentUser();
     if (!user) return;
