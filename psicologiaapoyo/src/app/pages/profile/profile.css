@@ -34,6 +34,12 @@ label {
   color: #334155;
 }
 
+input[readonly] {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 input,
 textarea,
 select {
@@ -63,6 +69,20 @@ select:focus {
   border-radius: 10px;
   color: #334155;
   font-size: .92rem;
+}
+
+.form-section {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 1rem;
+  color: #475569;
+}
+
+.form-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .message {

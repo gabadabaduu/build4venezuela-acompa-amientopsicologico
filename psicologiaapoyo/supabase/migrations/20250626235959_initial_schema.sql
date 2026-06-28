@@ -10,6 +10,15 @@ CREATE TABLE IF NOT EXISTS profiles (
   phone TEXT,
   bio TEXT,
   avatar_url TEXT,
+  professional_name TEXT,
+  specialty TEXT,
+  presentation TEXT,
+  available_schedule TEXT,
+  photo_url TEXT,
+  session_orientation TEXT,
+  studies_status TEXT,
+  professional_registry_number TEXT,
+  place TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

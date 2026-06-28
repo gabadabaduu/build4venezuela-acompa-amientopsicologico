@@ -18,6 +18,9 @@ CREATE TABLE profiles (
   available_schedule TEXT,
   photo_url TEXT,
   session_orientation TEXT,
+  studies_status TEXT,
+  professional_registry_number TEXT,
+  place TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
