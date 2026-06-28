@@ -15,13 +15,224 @@ h1 {
   font-size: 1.8rem;
 }
 
-/* Card principal formulario */
-.form {
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.tab {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab--active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.tab:hover,
+.tab--active:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.tab--active:hover {
+  background: #1d4ed8;
+}
+
+.panel {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.panel h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.panel-desc {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.muted,
+.empty {
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.92rem;
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.session-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.session-card--action {
+  align-items: center;
+}
+
+.session-card--mine {
+  align-items: flex-start;
+}
+
+.session-card__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.session-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.session-card__main {
+  min-width: 0;
+}
+
+.session-card__name {
+  margin: 0 0 4px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.session-card__contact,
+.session-card__detail,
+.session-card__meta {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.session-card__meta {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.session-card__schedule {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.session-card__schedule--empty {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.calendar-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.calendar-link-btn:hover,
+.calendar-link-btn:active,
+.calendar-link-btn:focus {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.calendar-link-btn--block {
+  width: 100%;
+}
+
+.schedule-btn {
+  width: 100%;
+}
+
+.status-badge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.assign-btn,
+.secondary-btn,
+.complete-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+
+.secondary-btn {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.secondary-btn:hover:not(:disabled),
+.secondary-btn:active:not(:disabled),
+.secondary-btn:focus:not(:disabled),
+.secondary-btn:focus-visible:not(:disabled) {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.complete-btn {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.complete-btn:hover:not(:disabled),
+.complete-btn:active:not(:disabled),
+.complete-btn:focus:not(:disabled) {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.form {
   display: grid;
   gap: 12px;
 }
@@ -85,6 +296,50 @@ select:focus {
   border-top: 0;
 }
 
+.password-form {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.password-form .panel-desc {
+  margin-top: -4px;
+}
+
+.password-form__submit {
+  justify-self: start;
+}
+
+.profile-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sign-out-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 14px 22px;
+  background: #475569;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sign-out-btn:hover,
+.sign-out-btn:active,
+.sign-out-btn:focus,
+.sign-out-btn:focus-visible {
+  background: #475569;
+  color: #ffffff;
+}
+
+.sign-out-btn:focus-visible {
+  outline: 2px solid #94a3b8;
+  outline-offset: 2px;
+}
+
 .message {
   margin: 4px 0 0;
   color: #166534;
@@ -98,20 +353,40 @@ select:focus {
 button {
   border: 0;
   border-radius: 10px;
-  padding: 11px 14px;
+  padding: 14px 22px;
   background: #2563eb;
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
 }
 
-button:hover {
-  background: #1d4ed8;
+button:not(.secondary-btn):hover,
+button:not(.secondary-btn):active,
+button:not(.secondary-btn):focus {
+  background: #2563eb;
+  color: #ffffff;
 }
 
 button:disabled {
   opacity: .7;
   cursor: not-allowed;
+}
+
+.secondary-btn:disabled,
+.secondary-btn:disabled:hover {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  opacity: 1;
+  cursor: wait;
+}
+
+.complete-btn:disabled,
+.complete-btn:disabled:hover {
+  background: #15803d;
+  color: #ffffff;
+  opacity: 1;
+  cursor: wait;
 }
 
 /* Secciones auxiliares */
@@ -185,4 +460,53 @@ button:disabled {
 
 .link a:hover {
   text-decoration: underline;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+}
+
+.modal-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.modal-desc {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.modal-form {
+  display: grid;
+  gap: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.modal-calendar {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
 }

@@ -7,7 +7,7 @@ export type StudiesStatus =
   | 'maestria'
   | 'doctorado';
 
-export interface Profile {
+export interface ProfileRow {
   id: string;
   full_name: string;
   role: UserRole;
@@ -27,21 +27,7 @@ export interface Profile {
   updated_at: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  phone?: string | null;
-}
-
-export const STUDIES_STATUS_LABELS: Record<StudiesStatus, string> = {
-  en_curso: 'En curso / Estudiante',
-  titulado: 'Titulado/a',
-  especializacion: 'Especialización',
-  maestria: 'Maestría',
-  doctorado: 'Doctorado',
-};
-
-export interface CreateProfileUserRequest {
+export interface CreateProfileUserInput {
   full_name: string;
   email?: string;
   password?: string;
@@ -61,21 +47,23 @@ export interface CreateProfileUserRequest {
 }
 
 export interface CreateProfileUserResult {
-  ok: boolean;
   user_id: string;
   email: string | null;
   phone: string | null;
   temporary_password?: string;
   must_change_password?: boolean;
-  profile: Pick<
-    Profile,
-    | 'id'
-    | 'full_name'
-    | 'role'
-    | 'phone'
-    | 'place'
-    | 'studies_status'
-    | 'professional_registry_number'
-    | 'created_at'
-  >;
+  profile: ProfileRow;
+}
+
+export function publicProfilePayload(profile: ProfileRow) {
+  return {
+    id: profile.id,
+    full_name: profile.full_name,
+    role: profile.role,
+    phone: profile.phone,
+    place: profile.place,
+    studies_status: profile.studies_status,
+    professional_registry_number: profile.professional_registry_number,
+    created_at: profile.created_at,
+  };
 }
