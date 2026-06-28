@@ -11,6 +11,7 @@ import type { Session, SessionStatus } from '../../models/session.model';
   standalone: true,
   imports: [FormsModule, RouterLink, DatePipe],
   templateUrl: './dashboard.html',
+  styleUrls: ['./dashboard.css'],
 })
 export class DashboardPage implements OnInit {
   readonly auth = inject(AuthService);

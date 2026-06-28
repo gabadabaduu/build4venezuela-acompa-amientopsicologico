@@ -1,59 +1,104 @@
-<div class="page">
-  <header class="header">
-    <h1>PsicologíaApoyo</h1>
-    <nav>
-      <a routerLink="/profile">Mi Perfil</a>
-      <button (click)="auth.signOut()">Cerrar sesión</button>
-    </nav>
+<div class="support-page">
+  <header class="hero">
+    <div class="hero__content">
+      <p class="eyebrow">Acompañamiento Psicológico</p>
+      <h1>No estás solo/a después del terremoto</h1>
+      <p class="hero__text">
+        Brindamos apoyo emocional rapido y acompañamiento profesional para
+        sobrevivientes, familias y comunidades afectadas dentro y fuera de Venezuela.
+      </p>
+      <div class="hero__badges">
+        <span>Atención confidencial</span>
+        <span>Equipo profesional</span>
+        <span>Respuesta rápida</span>
+      </div>
+    </div>
   </header>
 
-  <h2>Mis Sesiones</h2>
+  <main class="container">
+    <section class="services-intro">
+      <h2>Nuestros servicios</h2>
+      <p>
+        Elige la opción que mejor se adapte a lo que necesitas en este momento.
+      </p>
+    </section>
 
-  <div class="new-session">
-    <h3>Solicitar nueva sesión</h3>
-    <div class="form">
-      <label>
-        Fecha y hora
-        <input type="datetime-local" [ngModel]="scheduledAt()" (ngModelChange)="scheduledAt.set($event)" name="scheduledAt" />
-      </label>
-      <label>
-        Notas
-        <textarea [ngModel]="notes()" (ngModelChange)="notes.set($event)" name="notes" rows="3"></textarea>
-      </label>
-      <button (click)="createSession()" [disabled]="creating()">
-        {{ creating() ? 'Creando...' : 'Solicitar' }}
-      </button>
-    </div>
-  </div>
+    <section class="grid">
+      <!-- Servicio 1: Hotline -->
+      <article class="card">
+        <div class="card__icon">📞</div>
+        <h3>Hotline de atención rápida</h3>
+        <p>
+          Si necesitas hablar con alguien ahora, completa este formulario y un
+          profesional te contactará a la brevedad.
+        </p>
 
-  @if (loading()) {
-    <p>Cargando sesiones...</p>
-  } @else if (sessions().length === 0) {
-    <p>No tienes sesiones aún.</p>
-  } @else {
-    <div class="session-list">
-      @for (session of sessions(); track session.id) {
-        <div class="session-card" [class]="'status-' + session.status">
-          <div class="session-info">
-            <span class="status-badge">{{ statusLabel(session.status) }}</span>
-            @if (session.scheduled_at) {
-              <span>{{ session.scheduled_at | date:'medium' }}</span>
-            }
-            @if (session.notes) {
-              <p>{{ session.notes }}</p>
-            }
-          </div>
-          <div class="session-actions">
-            @if (session.status === 'pending') {
-              <button class="accept" (click)="updateStatus(session.id, 'accepted')">Aceptar</button>
-              <button class="reject" (click)="updateStatus(session.id, 'rejected')">Rechazar</button>
-            }
-            @if (session.status === 'accepted') {
-              <button (click)="updateStatus(session.id, 'completed')">Completar</button>
-            }
-          </div>
+        <form class="form">
+          <label for="nombre">Nombre completo</label>
+          <input id="nombre" type="text" placeholder="Tu nombre" required />
+
+          <label for="telefono">Teléfono de contacto</label>
+          <input id="telefono" type="tel" placeholder="+58 412-0000000" required />
+
+          <label for="nivel">Nivel de urgencia</label>
+          <select id="nivel" required>
+            <option value="">Selecciona una opción</option>
+            <option>Alta (necesito ayuda ahora)</option>
+            <option>Media (hoy)</option>
+            <option>Baja (puede esperar)</option>
+          </select>
+
+          <label for="mensaje">¿Cómo te podemos ayudar?</label>
+          <textarea
+            id="mensaje"
+            rows="4"
+            placeholder="Cuéntanos brevemente cómo te sientes..."
+            required
+          ></textarea>
+
+          <button type="submit">Solicitar atención rápida</button>
+          <small>
+            En caso de emergencia médica o riesgo inmediato, contacta servicios de
+            emergencia locales.
+          </small>
+        </form>
+      </article>
+
+      <!-- Servicio 2: Calendario -->
+      <article class="card">
+        <div class="card__icon">🗓️</div>
+        <h3>Agenda con profesionales</h3>
+        <p>
+          Reserva una sesión de acompañamiento psicológico con nuestro equipo a través
+          de Google Calendar.
+        </p>
+
+        <div class="calendar-box">
+          <p class="calendar-box__title">Disponibilidad semanal</p>
+          <p class="calendar-box__desc">
+            Selecciona fecha y hora según el profesional disponible.
+          </p>
+
+          <!-- Reemplaza el href con tu enlace real de Google Calendar Appointment Schedule -->
+          <a
+            class="calendar-btn"
+            href="https://calendar.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Agendar en Google Calendar
+          </a>
         </div>
-      }
-    </div>
-  }
+
+        <div class="team-note">
+          <h4>Atención por especialidad</h4>
+          <ul>
+            <li>Primeros auxilios psicológicos</li>
+            <li>Manejo de ansiedad y duelo</li>
+            <li>Acompañamiento familiar y comunitario</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+  </main>
 </div>

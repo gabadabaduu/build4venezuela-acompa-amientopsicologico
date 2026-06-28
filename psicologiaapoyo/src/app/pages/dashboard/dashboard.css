@@ -1,0 +1,246 @@
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #0ea5a4;
+  --primary-dark: #0b8b8a;
+  --secondary: #2563eb;
+  --border: #e2e8f0;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.support-page {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* HERO */
+.hero {
+  background:
+    linear-gradient(120deg, rgba(14, 165, 164, 0.12), rgba(37, 99, 235, 0.1)),
+    #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero__content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 20px 44px;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  background: #ccfbf1;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.2px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.15;
+}
+
+.hero__text {
+  margin-top: 14px;
+  max-width: 760px;
+  color: #334155;
+  font-size: 1.05rem;
+}
+
+.hero__badges {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero__badges span {
+  background: #eef2ff;
+  color: #1e3a8a;
+  border: 1px solid #c7d2fe;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+/* LAYOUT */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 26px 20px 40px;
+}
+
+.services-intro h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.services-intro p {
+  margin: 8px 0 24px;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.card__icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #f1f5f9;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.card p {
+  color: #334155;
+  margin: 10px 0 16px;
+}
+
+/* FORM */
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+.form label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #334155;
+}
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font: inherit;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  transition: 0.2s border-color, 0.2s box-shadow;
+}
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(14, 165, 164, 0.15);
+}
+
+.form button {
+  margin-top: 6px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form button:hover {
+  background: var(--primary-dark);
+}
+
+.form small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* CALENDAR BOX */
+.calendar-box {
+  border: 1px dashed #bfdbfe;
+  background: #f8fbff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.calendar-box__title {
+  margin: 0;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.calendar-box__desc {
+  margin: 6px 0 14px;
+  color: #475569;
+}
+
+.calendar-btn {
+  display: inline-block;
+  text-decoration: none;
+  background: var(--secondary);
+  color: white;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.calendar-btn:hover {
+  background: #1d4ed8;
+}
+
+.team-note {
+  margin-top: 16px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.team-note h4 {
+  margin: 0 0 8px;
+}
+
+.team-note ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #334155;
+}
