@@ -11,18 +11,18 @@ export class ProfileService {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle(); // mejor que single para evitar error si no existe
 
     if (error) throw error;
-    return data;
+    return data as Profile | null;
   }
 
-  async updateProfile(userId: string, updates: Partial<Pick<Profile, 'full_name' | 'phone' | 'bio' | 'avatar_url'>>) {
+  async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
     const { data, error } = await this.supabase.client
       .from('profiles')
       .update(updates)
       .eq('id', userId)
-      .select()
+      .select('*')
       .single();
 
     if (error) throw error;

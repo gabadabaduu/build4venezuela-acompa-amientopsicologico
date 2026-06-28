@@ -244,3 +244,88 @@ body {
   padding-left: 18px;
   color: #334155;
 }
+
+.topbar {
+  height: 64px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.brand {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.auth-btn {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  background: #f8fafc;
+}
+
+/* Botón auth arriba a la derecha */
+.support-page {
+  position: relative;
+}
+
+.auth-btn {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 20;
+
+  border: 1px solid #c7d2fe;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e3a8a;
+  backdrop-filter: blur(6px);
+
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(30, 58, 138, 0.12);
+  transition: all 0.2s ease;
+}
+
+.auth-btn:hover {
+  background: #eef2ff;
+  border-color: #a5b4fc;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(30, 58, 138, 0.18);
+}
+
+.auth-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+}
+
+.auth-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.95),
+    0 0 0 6px rgba(37, 99, 235, 0.35);
+}
+
+/* En móvil para que no se encime con el hero */
+@media (max-width: 640px) {
+  .auth-btn {
+    top: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+  }
+}

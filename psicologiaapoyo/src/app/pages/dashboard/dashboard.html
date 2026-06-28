@@ -1,4 +1,8 @@
 <div class="support-page">
+    <button class="auth-btn" (click)="onAuthAction()">
+    {{ isLoggedIn() ? 'Log out' : 'Iniciar sesión' }}
+  </button>
+
   <header class="hero">
     <div class="hero__content">
       <p class="eyebrow">Acompañamiento Psicológico</p>
@@ -47,14 +51,6 @@
             <option>Media (hoy)</option>
             <option>Baja (puede esperar)</option>
           </select>
-
-          <label for="mensaje">¿Cómo te podemos ayudar?</label>
-          <textarea
-            id="mensaje"
-            rows="4"
-            placeholder="Cuéntanos brevemente cómo te sientes..."
-            required
-          ></textarea>
 
           <button type="submit">Solicitar atención rápida</button>
           <small>

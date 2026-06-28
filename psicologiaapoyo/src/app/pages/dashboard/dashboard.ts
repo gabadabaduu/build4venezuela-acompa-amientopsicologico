@@ -1,7 +1,6 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SessionService } from '../../services/session.service';
 import type { Session, SessionStatus } from '../../models/session.model';
@@ -9,24 +8,35 @@ import type { Session, SessionStatus } from '../../models/session.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [FormsModule, RouterLink, DatePipe],
+  imports: [FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
 export class DashboardPage implements OnInit {
   readonly auth = inject(AuthService);
   private readonly sessionService = inject(SessionService);
+  private readonly router = inject(Router);
 
   sessions = signal<Session[]>([]);
   loading = signal(true);
 
-  // New session form
   scheduledAt = signal('');
   notes = signal('');
   creating = signal(false);
 
+  isLoggedIn = computed(() => !!this.auth.currentUser());
+
   ngOnInit() {
     this.loadSessions();
+  }
+
+  async onAuthAction() {
+    if (this.isLoggedIn()) {
+      await this.auth.signOut();
+      this.router.navigate(['/dashboard']);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   async loadSessions() {
@@ -34,8 +44,8 @@ export class DashboardPage implements OnInit {
     try {
       const data = await this.sessionService.getMySessions();
       this.sessions.set(data);
-    } catch {
-      // silently fail
+    } catch (e) {
+      console.error('loadSessions error', e);
     } finally {
       this.loading.set(false);
     }
@@ -44,6 +54,7 @@ export class DashboardPage implements OnInit {
   async createSession() {
     const user = this.auth.currentUser();
     if (!user) return;
+    if (!this.scheduledAt()) return;
 
     this.creating.set(true);
     try {
@@ -55,8 +66,8 @@ export class DashboardPage implements OnInit {
       this.scheduledAt.set('');
       this.notes.set('');
       await this.loadSessions();
-    } catch {
-      // silently fail
+    } catch (e) {
+      console.error('createSession error', e);
     } finally {
       this.creating.set(false);
     }
@@ -66,8 +77,8 @@ export class DashboardPage implements OnInit {
     try {
       await this.sessionService.updateSessionStatus(sessionId, status);
       await this.loadSessions();
-    } catch {
-      // silently fail
+    } catch (e) {
+      console.error('updateStatus error', e);
     }
   }
 
