@@ -50,16 +50,33 @@
             (ngModelChange)="hotlineName.set($event)"
           />
 
-          <label for="telefono">Teléfono de contacto</label>
-          <input
-            id="telefono"
-            name="telefono"
-            type="tel"
-            placeholder="+58 412-0000000"
-            required
-            [ngModel]="hotlinePhone()"
-            (ngModelChange)="hotlinePhone.set($event)"
-          />
+          <fieldset
+            class="contact-group"
+            [class.contact-group--error]="hotlineContactError()"
+          >
+            <legend>¿Cómo te contactamos?</legend>
+            <p class="contact-group__hint">Completa al menos uno: teléfono o correo.</p>
+
+            <label for="telefono">Teléfono de contacto</label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              placeholder="+58 412-0000000"
+              [ngModel]="hotlinePhone()"
+              (ngModelChange)="hotlinePhone.set($event)"
+            />
+
+            <label for="email">Correo electrónico</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="tu@correo.com"
+              [ngModel]="hotlineEmail()"
+              (ngModelChange)="hotlineEmail.set($event)"
+            />
+          </fieldset>
 
           <label for="edad">Edad</label>
           <select
