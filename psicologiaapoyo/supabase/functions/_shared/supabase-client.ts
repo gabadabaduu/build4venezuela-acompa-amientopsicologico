@@ -26,6 +26,8 @@ export interface GuestSessionInput {
   phone?: string;
   email?: string;
   notes?: string;
+  age_range?: string;
+  urgency?: string;
   source: GuestSessionSource;
   external_id?: string;
 }
@@ -43,6 +45,8 @@ export async function createGuestSession(
       scheduled_at: null,
       status: DEFAULT_SESSION_STATUS,
       notes: input.notes ?? null,
+      age_range: input.age_range ?? null,
+      urgency: input.urgency ?? null,
       source: input.source,
       external_id: input.external_id ?? null,
       volunteer_id: null,

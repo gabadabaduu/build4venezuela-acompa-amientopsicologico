@@ -1,11 +1,16 @@
 export type { SessionStatus } from './session-types.ts';
 export { DEFAULT_SESSION_STATUS } from './session-types.ts';
 
+const AGE_RANGES = ['under_10', '11_18', '19_30', '31_50', 'over_50'];
+const URGENCIES = ['high', 'medium', 'low'];
+
 export interface CreateSessionBody {
   full_name: string;
   phone?: string;
   email?: string;
   notes?: string;
+  age_range: string;
+  urgency: string;
 }
 
 export function parseCreateSessionBody(raw: unknown): CreateSessionBody {
@@ -28,7 +33,17 @@ export function parseCreateSessionBody(raw: unknown): CreateSessionBody {
     throw new ValidationError(`full_name must be at most ${MAX_NAME} characters`);
   }
 
-  return { full_name, phone, email, notes };
+  const age_range = normalizeEnum(body.age_range, 'age_range', AGE_RANGES);
+  const urgency = normalizeEnum(body.urgency, 'urgency', URGENCIES);
+
+  return { full_name, phone, email, notes, age_range, urgency };
+}
+
+function normalizeEnum(value: unknown, field: string, allowed: string[]): string {
+  if (typeof value !== 'string' || !allowed.includes(value)) {
+    throw new ValidationError(`${field} must be one of: ${allowed.join(', ')}`);
+  }
+  return value;
 }
 
 export class ValidationError extends Error {

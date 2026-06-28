@@ -12,6 +12,8 @@ export interface GuestSessionRow {
   scheduled_at: string | null;
   status: SessionStatus;
   notes: string | null;
+  age_range: string | null;
+  urgency: string | null;
   source: GuestSessionSource;
   external_id: string | null;
   volunteer_id: string | null;
