@@ -4,54 +4,252 @@
       <div class="brand-badge">PA</div>
       <div>
         <h1>Panel de administración</h1>
-        <p>Gestión interna</p>
+        <p>Gestión de psicólogos (voluntarios)</p>
       </div>
     </div>
 
-    <form class="admin-form" (ngSubmit)="onSubmit()">
-      <label for="name">Nombre</label>
-      <input
-        id="name"
-        name="name"
-        type="text"
-        placeholder="Nombre completo"
-        required
-        [ngModel]="name()"
-        (ngModelChange)="name.set($event)"
-      />
+    <section class="admin-info">
+      <h2 class="form-section">Tu cuenta</h2>
+      <div class="info-row">
+        <span class="info-label">Nombre</span>
+        <span class="info-value">{{ adminName() || '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Correo</span>
+        <span class="info-value">{{ adminEmail() || '—' }}</span>
+      </div>
+    </section>
 
-      <label for="email">Correo electrónico</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        placeholder="correo@ejemplo.com"
-        required
-        [ngModel]="email()"
-        (ngModelChange)="email.set($event)"
-      />
+    <section class="volunteers">
+      <div class="volunteers-header">
+        <h2 class="form-section">Psicólogos registrados</h2>
+        <button type="button" class="primary-btn" (click)="openModal()">
+          + Agregar psicólogo
+        </button>
+      </div>
 
-      <label for="phone">Teléfono</label>
-      <input
-        id="phone"
-        name="phone"
-        type="tel"
-        placeholder="+58 412-0000000"
-        required
-        [ngModel]="phone()"
-        (ngModelChange)="phone.set($event)"
-      />
-
-      @if (submitted()) {
-        <p class="success">Formulario enviado (vista de prueba).</p>
+      @if (error() && !showModal()) {
+        <p class="error">{{ error() }}</p>
       }
 
-      <button type="submit">Enviar</button>
-    </form>
+      @if (loading()) {
+        <p class="hint">Cargando...</p>
+      } @else if (volunteers().length === 0) {
+        <p class="hint">Aún no hay psicólogos registrados.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="volunteer-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Especialidad</th>
+                <th>Estudios</th>
+                <th>Lugar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of volunteers(); track v.id) {
+                <tr>
+                  <td>{{ v.full_name }}</td>
+                  <td>{{ v.specialty || '—' }}</td>
+                  <td>{{ studiesLabel(v.studies_status) || '—' }}</td>
+                  <td>{{ v.place || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
 
     <div class="actions">
       <a routerLink="/dashboard">Ir al inicio</a>
       <button type="button" class="link-btn" (click)="signOut()">Cerrar sesión</button>
     </div>
   </div>
+
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Registrar nuevo psicólogo</h2>
+          <button type="button" class="close-btn" (click)="closeModal()" aria-label="Cerrar">
+            ×
+          </button>
+        </div>
+
+        <form class="admin-form" (ngSubmit)="onSubmit()">
+          <h3 class="form-section">Datos de acceso</h3>
+
+          <label for="fullName">Nombre completo *</label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            placeholder="Nombre y apellido"
+            [ngModel]="fullName()"
+            (ngModelChange)="fullName.set($event)"
+          />
+
+          <p class="hint">Indica un correo o un teléfono (al menos uno es obligatorio).</p>
+
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="correo@ejemplo.com"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+          />
+
+          <label for="phone">Teléfono</label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="+584121234567"
+            [ngModel]="phone()"
+            (ngModelChange)="phone.set($event)"
+          />
+
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Mínimo 8 caracteres"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+          />
+          <p class="hint">Déjalo en blanco para generar una contraseña temporal.</p>
+
+          <h3 class="form-section">Datos profesionales (opcionales)</h3>
+
+          <label for="professionalName">Nombre profesional</label>
+          <input
+            id="professionalName"
+            name="professionalName"
+            type="text"
+            placeholder="Nombre público"
+            [ngModel]="professionalName()"
+            (ngModelChange)="professionalName.set($event)"
+          />
+
+          <label for="specialty">Especialidad</label>
+          <input
+            id="specialty"
+            name="specialty"
+            type="text"
+            placeholder="Área de especialidad"
+            [ngModel]="specialty()"
+            (ngModelChange)="specialty.set($event)"
+          />
+
+          <label for="presentation">Presentación</label>
+          <textarea
+            id="presentation"
+            name="presentation"
+            rows="3"
+            placeholder="Presentación breve para pacientes"
+            [ngModel]="presentation()"
+            (ngModelChange)="presentation.set($event)"
+          ></textarea>
+
+          <label for="studiesStatus">Estado de estudios</label>
+          <select
+            id="studiesStatus"
+            name="studiesStatus"
+            [ngModel]="studiesStatus()"
+            (ngModelChange)="studiesStatus.set($event)"
+          >
+            <option value="">Selecciona una opción (opcional)</option>
+            @for (option of studiesOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select>
+
+          <label for="registry">Número de registro profesional</label>
+          <input
+            id="registry"
+            name="registry"
+            type="text"
+            placeholder="Número de colegiatura o registro"
+            [ngModel]="professionalRegistryNumber()"
+            (ngModelChange)="professionalRegistryNumber.set($event)"
+          />
+
+          <label for="availableSchedule">Disponibilidad</label>
+          <input
+            id="availableSchedule"
+            name="availableSchedule"
+            type="text"
+            placeholder="Horarios o días disponibles"
+            [ngModel]="availableSchedule()"
+            (ngModelChange)="availableSchedule.set($event)"
+          />
+
+          <label for="sessionOrientation">Orientación de sesiones</label>
+          <input
+            id="sessionOrientation"
+            name="sessionOrientation"
+            type="text"
+            placeholder="Online, presencial, etc."
+            [ngModel]="sessionOrientation()"
+            (ngModelChange)="sessionOrientation.set($event)"
+          />
+
+          <label for="place">Lugar</label>
+          <input
+            id="place"
+            name="place"
+            type="text"
+            placeholder="Ciudad o ubicación"
+            [ngModel]="place()"
+            (ngModelChange)="place.set($event)"
+          />
+
+          <label for="avatarUrl">URL de avatar</label>
+          <input
+            id="avatarUrl"
+            name="avatarUrl"
+            type="url"
+            placeholder="https://..."
+            [ngModel]="avatarUrl()"
+            (ngModelChange)="avatarUrl.set($event)"
+          />
+
+          <label for="photoUrl">URL de foto de perfil</label>
+          <input
+            id="photoUrl"
+            name="photoUrl"
+            type="url"
+            placeholder="https://..."
+            [ngModel]="photoUrl()"
+            (ngModelChange)="photoUrl.set($event)"
+          />
+
+          @if (error()) {
+            <p class="error">{{ error() }}</p>
+          }
+          @if (success()) {
+            <p class="success">{{ success() }}</p>
+          }
+          @if (tempPassword()) {
+            <div class="temp-password">
+              <p>Contraseña temporal (cópiala y compártela, solo se muestra una vez):</p>
+              <code>{{ tempPassword() }}</code>
+            </div>
+          }
+
+          <div class="modal-actions">
+            <button type="button" class="link-btn" (click)="closeModal()">Cerrar</button>
+            <button type="submit" class="primary-btn" [disabled]="saving()">
+              {{ saving() ? 'Registrando...' : 'Registrar psicólogo' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 </div>
