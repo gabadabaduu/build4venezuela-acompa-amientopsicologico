@@ -14,7 +14,7 @@ export const environment = {
     anonKey:
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyc2ZuaWhub2l5end2aG9haXN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1Mzc3MDAsImV4cCI6MjA5ODExMzcwMH0.Tl1IO0NHO7lX-3ypnddqMOLRHYYJG2tft9cxua7h4nA',
 
-    // Must match PUBLIC_API_KEY in Supabase Edge Functions secrets (NOT the anon key)
+    // Must match PUBLIC_API_KEY secret in Supabase Edge Functions
     publicApiKey: 'f9cada5bd7158cce896317575bd5cfd93036b12eb2adb1ac167d2a81fc3d927b',
   },
 };

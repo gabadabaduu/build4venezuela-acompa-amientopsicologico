@@ -321,20 +321,47 @@ body {
   }
 }
 
-.requests-btn {
-  margin-left: 8px;
-  border: 1px solid #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
-  padding: 9px 14px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .2s ease;
+/* CONTACT GROUP (teléfono o correo, al menos uno) */
+.contact-group {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: 0.2s border-color, 0.2s background;
 }
 
-.requests-btn:hover {
-  background: #dbeafe;
-  border-color: #93c5fd;
+.contact-group legend {
+  padding: 0 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.contact-group__hint {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.contact-group--error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+/* FORM MESSAGES */
+.form .error {
+  margin: 2px 0;
+  color: #b91c1c;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.form .success {
+  margin: 2px 0;
+  color: #047857;
+  font-size: 0.88rem;
+  font-weight: 600;
 }

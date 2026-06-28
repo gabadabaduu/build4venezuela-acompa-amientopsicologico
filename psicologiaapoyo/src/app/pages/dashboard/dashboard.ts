@@ -41,10 +41,12 @@ export class DashboardPage implements OnInit {
 
   hotlineName = signal('');
   hotlinePhone = signal('');
+  hotlineEmail = signal('');
   hotlineAge = signal<GuestAgeRange | ''>('');
-  hotlineUrgency = signal<GuestUrgency | ''>('');
+  hotlineUrgency = signal<GuestUrgency | ''>('medium');
   hotlineSubmitting = signal(false);
   hotlineError = signal('');
+  hotlineContactError = signal(false);
   hotlineSuccess = signal(false);
 
   isLoggedIn = computed(() => !!this.auth.currentUser());
@@ -120,15 +122,20 @@ export class DashboardPage implements OnInit {
 
   async requestHotline() {
     this.hotlineError.set('');
+    this.hotlineContactError.set(false);
     this.hotlineSuccess.set(false);
 
-    if (
-      !this.hotlineName().trim() ||
-      !this.hotlinePhone().trim() ||
-      !this.hotlineAge() ||
-      !this.hotlineUrgency()
-    ) {
+    const phone = this.hotlinePhone().trim();
+    const email = this.hotlineEmail().trim();
+
+    if (!this.hotlineName().trim() || !this.hotlineAge() || !this.hotlineUrgency()) {
       this.hotlineError.set('Por favor completa todos los campos.');
+      return;
+    }
+
+    if (!phone && !email) {
+      this.hotlineContactError.set(true);
+      this.hotlineError.set('Indícanos un teléfono o un correo electrónico para contactarte.');
       return;
     }
 
@@ -136,15 +143,17 @@ export class DashboardPage implements OnInit {
     try {
       await this.guestSessionApi.createSession({
         full_name: this.hotlineName().trim(),
-        phone: this.hotlinePhone().trim(),
+        phone: phone || undefined,
+        email: email || undefined,
         age_range: this.hotlineAge() as GuestAgeRange,
         urgency: this.hotlineUrgency() as GuestUrgency,
       });
       this.hotlineSuccess.set(true);
       this.hotlineName.set('');
       this.hotlinePhone.set('');
+      this.hotlineEmail.set('');
       this.hotlineAge.set('');
-      this.hotlineUrgency.set('');
+      this.hotlineUrgency.set('medium');
     } catch (err: unknown) {
       this.hotlineError.set(
         err instanceof Error ? err.message : 'No se pudo enviar la solicitud.',
