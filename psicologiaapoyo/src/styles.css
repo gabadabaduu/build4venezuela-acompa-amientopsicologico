@@ -1,1 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Design tokens — must live in the GLOBAL stylesheet so :root applies to the
+   document root. In component-scoped CSS, emulated view encapsulation rewrites
+   :root and the custom properties never reach the cascade (e.g. var(--primary)
+   would be unresolved, making themed buttons render transparent). */
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #0ea5a4;
+  --primary-dark: #0b8b8a;
+  --secondary: #2563eb;
+  --border: #e2e8f0;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --radius: 16px;
+}

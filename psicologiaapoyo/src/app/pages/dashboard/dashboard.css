@@ -1,15 +1,6 @@
-:root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --primary: #0ea5a4;
-  --primary-dark: #0b8b8a;
-  --secondary: #2563eb;
-  --border: #e2e8f0;
-  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-  --radius: 16px;
-}
+/* Design tokens (--primary, --surface, …) live in the global src/styles.css.
+   They must not be redefined here: under emulated view encapsulation a
+   component-scoped :root does not reach the document root. */
 
 * {
   box-sizing: border-box;

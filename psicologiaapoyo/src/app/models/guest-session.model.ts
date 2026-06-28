@@ -1,11 +1,16 @@
 import type { SessionStatus } from './session.model';
 import type { Session } from './session.model';
 
+export type GuestAgeRange = 'under_10' | '11_18' | '19_30' | '31_50' | 'over_50';
+export type GuestUrgency = 'high' | 'medium' | 'low';
+
 export interface CreateGuestSessionRequest {
   full_name: string;
   phone?: string;
   email?: string;
   notes?: string;
+  age_range: GuestAgeRange;
+  urgency: GuestUrgency;
 }
 
 export interface GuestSession {
@@ -16,6 +21,8 @@ export interface GuestSession {
   scheduled_at: string | null;
   status: SessionStatus;
   notes: string | null;
+  age_range: GuestAgeRange | null;
+  urgency: GuestUrgency | null;
   source: 'web' | 'whatsapp';
   volunteer_id: string | null;
   created_at: string;

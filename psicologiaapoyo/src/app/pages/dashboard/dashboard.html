@@ -38,22 +38,69 @@
           contactará a la brevedad.
         </p>
 
-        <form class="form">
+        <form class="form" (ngSubmit)="requestHotline()">
           <label for="nombre">Nombre completo</label>
-          <input id="nombre" type="text" placeholder="Tu nombre" required />
+          <input
+            id="nombre"
+            name="nombre"
+            type="text"
+            placeholder="Tu nombre"
+            required
+            [ngModel]="hotlineName()"
+            (ngModelChange)="hotlineName.set($event)"
+          />
 
           <label for="telefono">Teléfono de contacto</label>
-          <input id="telefono" type="tel" placeholder="+58 412-0000000" required />
+          <input
+            id="telefono"
+            name="telefono"
+            type="tel"
+            placeholder="+58 412-0000000"
+            required
+            [ngModel]="hotlinePhone()"
+            (ngModelChange)="hotlinePhone.set($event)"
+          />
 
-          <label for="nivel">Nivel de urgencia</label>
-          <select id="nivel" required>
+          <label for="edad">Edad</label>
+          <select
+            id="edad"
+            name="edad"
+            required
+            [ngModel]="hotlineAge()"
+            (ngModelChange)="hotlineAge.set($event)"
+          >
             <option value="">Selecciona una opción</option>
-            <option>Alta (necesito ayuda ahora)</option>
-            <option>Media (hoy)</option>
-            <option>Baja (puede esperar)</option>
+            <option value="under_10">Menos de 10</option>
+            <option value="11_18">11 a 18</option>
+            <option value="19_30">19 a 30</option>
+            <option value="31_50">31 a 50</option>
+            <option value="over_50">Más de 50</option>
           </select>
 
-          <button type="submit">Solicitar atención rápida</button>
+          <label for="nivel">Nivel de urgencia</label>
+          <select
+            id="nivel"
+            name="nivel"
+            required
+            [ngModel]="hotlineUrgency()"
+            (ngModelChange)="hotlineUrgency.set($event)"
+          >
+            <option value="">Selecciona una opción</option>
+            <option value="high">Alta (necesito ayuda ahora)</option>
+            <option value="medium">Media (hoy)</option>
+            <option value="low">Baja (puede esperar)</option>
+          </select>
+
+          @if (hotlineError()) {
+            <p class="error">{{ hotlineError() }}</p>
+          }
+          @if (hotlineSuccess()) {
+            <p class="success">Solicitud enviada. Un profesional te contactará pronto.</p>
+          }
+
+          <button type="submit" [disabled]="hotlineSubmitting()">
+            {{ hotlineSubmitting() ? 'Enviando...' : 'Solicitar atención' }}
+          </button>
           <small>
             En caso de emergencia médica o riesgo inmediato, contacta servicios de emergencia
             locales.

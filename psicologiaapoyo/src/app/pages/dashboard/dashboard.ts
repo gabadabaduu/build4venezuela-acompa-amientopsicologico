@@ -3,9 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GuestSessionService } from '../../services/guest-session.service';
+import { GuestSessionApiService } from '../../services/guest-session-api.service';
 import { ProfileService } from '../../services/profile.service';
 import { SessionService } from '../../services/session.service';
-import type { GuestSession } from '../../models/guest-session.model';
+import type {
+  GuestAgeRange,
+  GuestSession,
+  GuestUrgency,
+} from '../../models/guest-session.model';
 import type { Session, SessionStatus } from '../../models/session.model';
 
 @Component({
@@ -20,6 +25,7 @@ export class DashboardPage implements OnInit {
   private readonly sessionService = inject(SessionService);
   private readonly router = inject(Router);
   private readonly guestSessionService = inject(GuestSessionService);
+  private readonly guestSessionApi = inject(GuestSessionApiService);
   private readonly profileService = inject(ProfileService);
 
   sessions = signal<Session[]>([]);
@@ -33,6 +39,14 @@ export class DashboardPage implements OnInit {
   scheduledAt = signal('');
   notes = signal('');
   creating = signal(false);
+
+  hotlineName = signal('');
+  hotlinePhone = signal('');
+  hotlineAge = signal<GuestAgeRange | ''>('');
+  hotlineUrgency = signal<GuestUrgency | ''>('');
+  hotlineSubmitting = signal(false);
+  hotlineError = signal('');
+  hotlineSuccess = signal(false);
 
   isLoggedIn = computed(() => !!this.auth.currentUser());
 
@@ -104,6 +118,42 @@ export class DashboardPage implements OnInit {
       // silently fail
     } finally {
       this.creating.set(false);
+    }
+  }
+
+  async requestHotline() {
+    this.hotlineError.set('');
+    this.hotlineSuccess.set(false);
+
+    if (
+      !this.hotlineName().trim() ||
+      !this.hotlinePhone().trim() ||
+      !this.hotlineAge() ||
+      !this.hotlineUrgency()
+    ) {
+      this.hotlineError.set('Por favor completa todos los campos.');
+      return;
+    }
+
+    this.hotlineSubmitting.set(true);
+    try {
+      await this.guestSessionApi.createSession({
+        full_name: this.hotlineName().trim(),
+        phone: this.hotlinePhone().trim(),
+        age_range: this.hotlineAge() as GuestAgeRange,
+        urgency: this.hotlineUrgency() as GuestUrgency,
+      });
+      this.hotlineSuccess.set(true);
+      this.hotlineName.set('');
+      this.hotlinePhone.set('');
+      this.hotlineAge.set('');
+      this.hotlineUrgency.set('');
+    } catch (err: unknown) {
+      this.hotlineError.set(
+        err instanceof Error ? err.message : 'No se pudo enviar la solicitud.',
+      );
+    } finally {
+      this.hotlineSubmitting.set(false);
     }
   }
 
