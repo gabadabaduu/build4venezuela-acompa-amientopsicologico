@@ -53,6 +53,54 @@ export class AuthService {
     return data;
   }
 
+  async mustChangePassword(): Promise<boolean> {
+    const { data, error } = await this.supabase.client.auth.getUser();
+    if (error) throw error;
+    return data.user?.user_metadata?.['must_change_password'] === true;
+  }
+
+  async updatePassword(newPassword: string) {
+    const { error } = await this.supabase.client.auth.updateUser({
+      password: newPassword,
+      data: { must_change_password: false },
+    });
+
+    if (error) throw error;
+  }
+
+  async changePassword(currentPassword: string, newPassword: string) {
+    const user = this.currentUser();
+    if (!user?.email) {
+      throw new Error('No se pudo verificar tu cuenta para cambiar la contraseña.');
+    }
+
+    const { error: verifyError } = await this.supabase.client.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+
+    if (verifyError) {
+      throw new Error('La contraseña actual no es correcta.');
+    }
+
+    await this.updatePassword(newPassword);
+  }
+
+  async getPostLoginPath(userId: string): Promise<string> {
+    if (await this.mustChangePassword()) {
+      return '/change-password';
+    }
+
+    const { data, error } = await this.supabase.client
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data?.role === 'admin' ? '/admin' : '/profile';
+  }
+
   async signOut() {
     await this.supabase.client.auth.signOut();
     this.currentUser.set(null);

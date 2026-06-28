@@ -28,3 +28,9 @@ verify_jwt = false
 
 [functions.assign-volunteer]
 verify_jwt = true
+
+[functions.create-profile-user]
+verify_jwt = true
+
+[functions.manage-volunteer-session]
+verify_jwt = true

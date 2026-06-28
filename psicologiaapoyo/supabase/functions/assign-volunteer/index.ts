@@ -46,7 +46,14 @@ Deno.serve(async (req) => {
         return errorResponse('Only volunteers can assign sessions', 403, headers);
       }
       if (error.message.includes('session_not_available')) {
-        return errorResponse('Session is not available for assignment', 409, headers);
+        return errorResponse(
+          'Esta sesión ya no está disponible. Otro voluntario pudo haberla tomado un momento antes.',
+          409,
+          headers,
+        );
+      }
+      if (error.message.includes('session_not_found')) {
+        return errorResponse('Session not found', 404, headers);
       }
       throw error;
     }

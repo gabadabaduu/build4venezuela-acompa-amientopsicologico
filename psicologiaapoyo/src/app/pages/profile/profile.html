@@ -1,173 +1,408 @@
 <div class="page">
-  <h1>Mi perfil</h1>
+  <h1>Panel del voluntario</h1>
 
-  @if (loading()) {
-    <p>Cargando...</p>
-  } @else {
-    <form class="form" (ngSubmit)="save()">
-      <h2 class="form-section">Datos personales</h2>
-
-      <label for="fullName">Nombre completo</label>
-      <input
-        id="fullName"
-        name="fullName"
-        type="text"
-        required
-        placeholder="Nombre y apellido"
-        [ngModel]="fullName()"
-        (ngModelChange)="fullName.set($event)"
-      />
-
-      <label for="email">Correo electrónico</label>
-      <input id="email" name="email" type="email" [ngModel]="email()" readonly />
-
-      <label for="phone">Teléfono</label>
-      <input
-        id="phone"
-        name="phone"
-        type="tel"
-        placeholder="+58 412-0000000"
-        [ngModel]="phone()"
-        (ngModelChange)="phone.set($event)"
-      />
-
-      <label for="place">Lugar</label>
-      <input
-        id="place"
-        name="place"
-        type="text"
-        placeholder="Ciudad o ubicación"
-        [ngModel]="place()"
-        (ngModelChange)="place.set($event)"
-      />
-
-      <label for="bio">Biografía</label>
-      <textarea
-        id="bio"
-        name="bio"
-        rows="3"
-        placeholder="Breve descripción personal o profesional"
-        [ngModel]="bio()"
-        (ngModelChange)="bio.set($event)"
-      ></textarea>
-
-      <h2 class="form-section">Datos profesionales</h2>
-
-      <label for="professionalName">Nombre profesional</label>
-      <input
-        id="professionalName"
-        name="professionalName"
-        type="text"
-        placeholder="Nombre público (opcional)"
-        [ngModel]="professionalName()"
-        (ngModelChange)="professionalName.set($event)"
-      />
-
-      <label for="specialty">Especialidad</label>
-      <input
-        id="specialty"
-        name="specialty"
-        type="text"
-        placeholder="Área de especialidad"
-        [ngModel]="specialty()"
-        (ngModelChange)="specialty.set($event)"
-      />
-
-      <label for="presentation">Presentación</label>
-      <textarea
-        id="presentation"
-        name="presentation"
-        rows="3"
-        placeholder="Presentación breve para pacientes"
-        [ngModel]="presentation()"
-        (ngModelChange)="presentation.set($event)"
-      ></textarea>
-
-      <label for="studiesStatus">Estado de estudios</label>
-      <select
-        id="studiesStatus"
-        name="studiesStatus"
-        [ngModel]="studiesStatus()"
-        (ngModelChange)="studiesStatus.set($event)"
+  <nav class="tabs" aria-label="Secciones del voluntario">
+    @for (tab of tabs; track tab.id) {
+      <button
+        type="button"
+        class="tab"
+        [class.tab--active]="activeTab() === tab.id"
+        (click)="setTab(tab.id)"
       >
-        <option value="">Selecciona una opción (opcional)</option>
-        @for (option of studiesOptions; track option[0]) {
-          <option [value]="option[0]">{{ option[1] }}</option>
-        }
-      </select>
-
-      <label for="registry">Número de registro profesional</label>
-      <input
-        id="registry"
-        name="registry"
-        type="text"
-        placeholder="Número de colegiatura o registro"
-        [ngModel]="professionalRegistryNumber()"
-        (ngModelChange)="professionalRegistryNumber.set($event)"
-      />
-
-      <label for="availableSchedule">Disponibilidad</label>
-      <input
-        id="availableSchedule"
-        name="availableSchedule"
-        type="text"
-        placeholder="Horarios o días disponibles"
-        [ngModel]="availableSchedule()"
-        (ngModelChange)="availableSchedule.set($event)"
-      />
-
-      <label for="sessionOrientation">Orientación de sesiones</label>
-      <input
-        id="sessionOrientation"
-        name="sessionOrientation"
-        type="text"
-        placeholder="Online, presencial, etc."
-        [ngModel]="sessionOrientation()"
-        (ngModelChange)="sessionOrientation.set($event)"
-      />
-
-      <h2 class="form-section">Imágenes</h2>
-
-      <label for="avatarUrl">URL de avatar</label>
-      <input
-        id="avatarUrl"
-        name="avatarUrl"
-        type="url"
-        placeholder="https://..."
-        [ngModel]="avatarUrl()"
-        (ngModelChange)="avatarUrl.set($event)"
-      />
-
-      <label for="photoUrl">URL de foto de perfil</label>
-      <input
-        id="photoUrl"
-        name="photoUrl"
-        type="url"
-        placeholder="https://..."
-        [ngModel]="photoUrl()"
-        (ngModelChange)="photoUrl.set($event)"
-      />
-
-      @if (message()) {
-        <p class="message">{{ message() }}</p>
-      }
-
-      <button type="submit" [disabled]="saving()">
-        {{ saving() ? 'Guardando...' : 'Guardar perfil' }}
+        {{ tab.label }}
       </button>
-    </form>
+    }
+  </nav>
+
+  @if (loading() && activeTab() === 'profile') {
+    <p class="muted">Cargando...</p>
   }
 
-  <section class="section-card">
-    <h2>Solicitudes inmediatas</h2>
-    <p>
-      Aquí aparecerán solicitudes urgentes de atención rápida para profesionales de guardia.
-    </p>
-    <a routerLink="/solicitudes-inmediatas">Ir a solicitudes inmediatas</a>
-  </section>
+  @if (activeTab() === 'mine') {
+    <section class="panel">
+      <h2>Mis sesiones</h2>
+      <p class="panel-desc">Sesiones pendientes o aceptadas asignadas a ti.</p>
 
-  <p class="link">
-    <a routerLink="/dashboard">Volver al panel</a>
-    <a routerLink="/">Ir al inicio</a>
-  </p>
+      @if (sessionsLoading()) {
+        <p class="muted">Cargando sesiones...</p>
+      } @else if (sessionsError()) {
+        <p class="error">{{ sessionsError() }}</p>
+      } @else if (mySessions().length === 0) {
+        <p class="empty">No tienes sesiones asignadas.</p>
+      } @else {
+        <ul class="session-list">
+          @for (session of mySessions(); track session.id) {
+            <li class="session-card session-card--mine">
+              <div class="session-card__main">
+                <p class="session-card__name">{{ session.name }}</p>
+                <p class="session-card__contact">{{ session.contact }}</p>
+                @if (session.detail) {
+                  <p class="session-card__detail">{{ session.detail }}</p>
+                }
+                @if (formatScheduledAt(session.scheduled_at); as scheduledLabel) {
+                  <p class="session-card__schedule">Horario: {{ scheduledLabel }} (60 min)</p>
+                } @else {
+                  <p class="session-card__schedule session-card__schedule--empty">Sin horario asignado</p>
+                }
+                <p class="session-card__meta">
+                  {{ formatDate(session.created_at) }}
+                </p>
+              </div>
+              <div class="session-card__aside">
+                <span class="status-badge">{{ statusLabel(session.status) }}</span>
+                <div class="session-actions">
+                  <button
+                    type="button"
+                    class="secondary-btn schedule-btn"
+                    [disabled]="managingSessionId() === session.id"
+                    (click)="openScheduleModal(session)"
+                  >
+                    {{ session.scheduled_at ? 'Cambiar horario' : 'Agendar horario' }}
+                  </button>
+                  @if (session.scheduled_at) {
+                    <a
+                      class="calendar-link-btn"
+                      [href]="googleCalendarUrl(session)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Agregar a Google Calendar
+                    </a>
+                  }
+                  <button
+                    type="button"
+                    class="secondary-btn"
+                    [disabled]="managingSessionId() === session.id"
+                    (click)="releaseSession(session.id, session.type)"
+                  >
+                    {{
+                      isManaging(session.id, 'release') ? 'Desasignando...' : 'Desasignar sesión'
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    class="complete-btn"
+                    [disabled]="managingSessionId() === session.id"
+                    (click)="completeSession(session.id, session.type)"
+                  >
+                    {{ isManaging(session.id, 'complete') ? 'Guardando...' : 'Completado' }}
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (activeTab() === 'unassigned') {
+    <section class="panel">
+      <h2>Sesiones sin asignar</h2>
+      <p class="panel-desc">Solicitudes disponibles para que te asignes.</p>
+
+      @if (sessionsLoading()) {
+        <p class="muted">Cargando sesiones...</p>
+      } @else if (sessionsError()) {
+        <p class="error">{{ sessionsError() }}</p>
+      } @else if (unassignedSessions().length === 0) {
+        <p class="empty">No hay sesiones sin asignar en este momento.</p>
+      } @else {
+        <ul class="session-list">
+          @for (session of unassignedSessions(); track session.id) {
+            <li class="session-card session-card--action">
+              <div class="session-card__main">
+                <p class="session-card__name">{{ session.name }}</p>
+                <p class="session-card__contact">{{ session.contact }}</p>
+                @if (session.detail) {
+                  <p class="session-card__detail">{{ session.detail }}</p>
+                }
+                <p class="session-card__meta">
+                  {{ formatDate(session.created_at) }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="assign-btn"
+                [disabled]="assigningId() === session.id"
+                (click)="assignToMe(session.id, session.type)"
+              >
+                {{ assigningId() === session.id ? 'Asignando...' : 'Asignarmela' }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (activeTab() === 'profile') {
+    <section class="panel">
+      @if (loading()) {
+        <p class="muted">Cargando...</p>
+      } @else {
+        <form class="form" (ngSubmit)="save()">
+          <h2 class="form-section">Datos personales</h2>
+
+          <label for="fullName">Nombre completo</label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            required
+            placeholder="Nombre y apellido"
+            [ngModel]="fullName()"
+            (ngModelChange)="fullName.set($event)"
+          />
+
+          <label for="email">Correo electrónico</label>
+          <input id="email" name="email" type="email" [ngModel]="email()" readonly />
+
+          <label for="phone">Teléfono</label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="+58 412-0000000"
+            [ngModel]="phone()"
+            (ngModelChange)="phone.set($event)"
+          />
+
+          <label for="place">Lugar</label>
+          <input
+            id="place"
+            name="place"
+            type="text"
+            placeholder="Ciudad o ubicación"
+            [ngModel]="place()"
+            (ngModelChange)="place.set($event)"
+          />
+
+          <label for="bio">Biografía</label>
+          <textarea
+            id="bio"
+            name="bio"
+            rows="3"
+            placeholder="Breve descripción personal o profesional"
+            [ngModel]="bio()"
+            (ngModelChange)="bio.set($event)"
+          ></textarea>
+
+          <h2 class="form-section">Datos profesionales</h2>
+
+          <label for="professionalName">Nombre profesional</label>
+          <input
+            id="professionalName"
+            name="professionalName"
+            type="text"
+            placeholder="Nombre público (opcional)"
+            [ngModel]="professionalName()"
+            (ngModelChange)="professionalName.set($event)"
+          />
+
+          <label for="specialty">Especialidad</label>
+          <input
+            id="specialty"
+            name="specialty"
+            type="text"
+            placeholder="Área de especialidad"
+            [ngModel]="specialty()"
+            (ngModelChange)="specialty.set($event)"
+          />
+
+          <label for="presentation">Presentación</label>
+          <textarea
+            id="presentation"
+            name="presentation"
+            rows="3"
+            placeholder="Presentación breve para pacientes"
+            [ngModel]="presentation()"
+            (ngModelChange)="presentation.set($event)"
+          ></textarea>
+
+          <label for="studiesStatus">Estado de estudios</label>
+          <select
+            id="studiesStatus"
+            name="studiesStatus"
+            [ngModel]="studiesStatus()"
+            (ngModelChange)="studiesStatus.set($event)"
+          >
+            <option value="">Selecciona una opción (opcional)</option>
+            @for (option of studiesOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select>
+
+          <label for="registry">Número de registro profesional</label>
+          <input
+            id="registry"
+            name="registry"
+            type="text"
+            placeholder="Número de colegiatura o registro"
+            [ngModel]="professionalRegistryNumber()"
+            (ngModelChange)="professionalRegistryNumber.set($event)"
+          />
+
+          <label for="availableSchedule">Disponibilidad</label>
+          <input
+            id="availableSchedule"
+            name="availableSchedule"
+            type="text"
+            placeholder="Horarios o días disponibles"
+            [ngModel]="availableSchedule()"
+            (ngModelChange)="availableSchedule.set($event)"
+          />
+
+          <label for="sessionOrientation">Orientación de sesiones</label>
+          <input
+            id="sessionOrientation"
+            name="sessionOrientation"
+            type="text"
+            placeholder="Online, presencial, etc."
+            [ngModel]="sessionOrientation()"
+            (ngModelChange)="sessionOrientation.set($event)"
+          />
+
+          <h2 class="form-section">Imágenes</h2>
+
+          <label for="avatarUrl">URL de avatar</label>
+          <input
+            id="avatarUrl"
+            name="avatarUrl"
+            type="url"
+            placeholder="https://..."
+            [ngModel]="avatarUrl()"
+            (ngModelChange)="avatarUrl.set($event)"
+          />
+
+          <label for="photoUrl">URL de foto de perfil</label>
+          <input
+            id="photoUrl"
+            name="photoUrl"
+            type="url"
+            placeholder="https://..."
+            [ngModel]="photoUrl()"
+            (ngModelChange)="photoUrl.set($event)"
+          />
+
+          @if (message()) {
+            <p class="message">{{ message() }}</p>
+          }
+
+          <button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : 'Guardar perfil' }}
+          </button>
+        </form>
+
+        <form class="form password-form" (ngSubmit)="changePassword()">
+          <h2 class="form-section">Seguridad</h2>
+          <p class="panel-desc">Actualiza tu contraseña de acceso.</p>
+
+          <label for="currentPassword">Contraseña actual</label>
+          <input
+            id="currentPassword"
+            name="currentPassword"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Tu contraseña actual"
+            [ngModel]="currentPassword()"
+            (ngModelChange)="currentPassword.set($event)"
+          />
+
+          <label for="newPassword">Nueva contraseña</label>
+          <input
+            id="newPassword"
+            name="newPassword"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Mínimo 8 caracteres"
+            [ngModel]="newPassword()"
+            (ngModelChange)="newPassword.set($event)"
+          />
+
+          <label for="confirmPassword">Confirmar nueva contraseña</label>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Repite la nueva contraseña"
+            [ngModel]="confirmPassword()"
+            (ngModelChange)="confirmPassword.set($event)"
+          />
+
+          @if (passwordError()) {
+            <p class="error">{{ passwordError() }}</p>
+          }
+          @if (passwordSuccess()) {
+            <p class="message">{{ passwordSuccess() }}</p>
+          }
+
+          <button type="submit" class="password-form__submit" [disabled]="passwordSaving()">
+            {{ passwordSaving() ? 'Guardando...' : 'Cambiar contraseña' }}
+          </button>
+        </form>
+
+        <div class="profile-footer">
+          <button type="button" class="sign-out-btn" (click)="signOut()">Cerrar sesión</button>
+        </div>
+      }
+    </section>
+  }
 </div>
+
+@if (scheduleModalOpen()) {
+  <div class="modal-backdrop" (click)="closeScheduleModal()">
+    <div
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="schedule-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="schedule-modal-title">Agendar sesión</h2>
+      @if (scheduleTarget(); as target) {
+        <p class="modal-desc">
+          {{ target.name }} · Duración: 60 minutos · Hora de Venezuela (America/Caracas)
+        </p>
+      }
+
+      <form class="modal-form" (ngSubmit)="saveSchedule()">
+        <label for="scheduleDateTime">Fecha y hora</label>
+        <input
+          id="scheduleDateTime"
+          name="scheduleDateTime"
+          type="datetime-local"
+          required
+          [ngModel]="scheduleDateTime()"
+          (ngModelChange)="scheduleDateTime.set($event)"
+        />
+
+        @if (scheduleError()) {
+          <p class="error">{{ scheduleError() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" (click)="closeScheduleModal()">Cancelar</button>
+          <button type="submit" [disabled]="scheduleSaving()">
+            {{ scheduleSaving() ? 'Guardando...' : 'Guardar horario' }}
+          </button>
+        </div>
+      </form>
+
+      @if (scheduleCalendarUrl()) {
+        <div class="modal-calendar">
+          <p class="message">Horario guardado. Puedes añadirlo a tu calendario:</p>
+          <a
+            class="calendar-link-btn calendar-link-btn--block"
+            [href]="scheduleCalendarUrl()"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Agregar a Google Calendar
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+}

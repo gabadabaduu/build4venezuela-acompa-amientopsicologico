@@ -96,3 +96,119 @@ export async function assertNoActiveGuestSessionByContact(
   if (error) throw error;
   if (data) throw new ActiveGuestSessionError();
 }
+
+export class DuplicateUserError extends Error {
+  constructor(message = 'A user with this email or phone already exists') {
+    super(message);
+    this.name = 'DuplicateUserError';
+  }
+}
+
+function generateTemporaryPassword(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+export async function assertAuthUserAvailable(
+  supabase: SupabaseClient,
+  contact: { email?: string; phone?: string },
+): Promise<void> {
+  if (contact.email) {
+    const { data, error } = await supabase.rpc('auth_user_exists_by_email', {
+      p_email: contact.email,
+    });
+    if (error) throw error;
+    if (data) throw new DuplicateUserError('A user with this email already exists');
+  }
+
+  if (contact.phone) {
+    const { data, error } = await supabase.rpc('auth_user_exists_by_phone', {
+      p_phone: contact.phone,
+    });
+    if (error) throw error;
+    if (data) throw new DuplicateUserError('A user with this phone already exists');
+  }
+}
+
+export async function createAuthUserWithProfile(
+  supabase: SupabaseClient,
+  input: import('./profile-types.ts').CreateProfileUserInput,
+): Promise<import('./profile-types.ts').CreateProfileUserResult> {
+  await assertAuthUserAvailable(supabase, {
+    email: input.email,
+    phone: input.phone,
+  });
+
+  const password = input.password ?? generateTemporaryPassword();
+  const passwordWasGenerated = !input.password;
+
+  const createPayload: {
+    email?: string;
+    phone?: string;
+    password: string;
+    email_confirm: boolean;
+    phone_confirm: boolean;
+    user_metadata: { full_name: string; must_change_password: boolean };
+  } = {
+    password,
+    email_confirm: true,
+    phone_confirm: true,
+    user_metadata: {
+      full_name: input.full_name,
+      must_change_password: true,
+    },
+  };
+
+  if (input.email) createPayload.email = input.email;
+  if (input.phone) createPayload.phone = input.phone;
+
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser(createPayload);
+
+  if (authError || !authData.user) {
+    if (authError?.message?.toLowerCase().includes('already')) {
+      throw new DuplicateUserError();
+    }
+    throw authError ?? new Error('Failed to create auth user');
+  }
+
+  const userId = authData.user.id;
+
+  const profileRow = {
+    id: userId,
+    full_name: input.full_name,
+    role: input.role ?? 'volunteer',
+    phone: input.phone ?? null,
+    bio: input.bio ?? null,
+    avatar_url: input.avatar_url ?? null,
+    professional_name: input.professional_name ?? null,
+    specialty: input.specialty ?? null,
+    presentation: input.presentation ?? null,
+    available_schedule: input.available_schedule ?? null,
+    photo_url: input.photo_url ?? null,
+    session_orientation: input.session_orientation ?? null,
+    studies_status: input.studies_status ?? null,
+    professional_registry_number: input.professional_registry_number ?? null,
+    place: input.place ?? null,
+  };
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .insert(profileRow)
+    .select()
+    .single();
+
+  if (profileError || !profile) {
+    await supabase.auth.admin.deleteUser(userId);
+    throw profileError ?? new Error('Failed to create profile');
+  }
+
+  return {
+    user_id: userId,
+    email: authData.user.email ?? null,
+    phone: authData.user.phone ?? input.phone ?? null,
+    temporary_password: passwordWasGenerated ? password : undefined,
+    must_change_password: true,
+    profile: profile as import('./profile-types.ts').ProfileRow,
+  };
+}

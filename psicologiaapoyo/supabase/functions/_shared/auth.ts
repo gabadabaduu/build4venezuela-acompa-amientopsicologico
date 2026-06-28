@@ -103,3 +103,45 @@ export async function getAuthenticatedVolunteer(req: Request): Promise<string> {
 
   return user.id;
 }
+
+export async function getAuthenticatedAdmin(req: Request): Promise<string> {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw new AuthError('Missing authorization');
+  }
+
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY');
+  }
+
+  const { createClient } = await import('npm:@supabase/supabase-js@2');
+  const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const {
+    data: { user },
+    error,
+  } = await authClient.auth.getUser();
+
+  if (error || !user) {
+    throw new AuthError('Invalid or expired token');
+  }
+
+  const { createServiceClient } = await import('./supabase-client.ts');
+  const serviceClient = createServiceClient();
+  const { data: profile, error: profileError } = await serviceClient
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || profile?.role !== 'admin') {
+    throw new AuthError('Only admins can create users');
+  }
+
+  return user.id;
+}
