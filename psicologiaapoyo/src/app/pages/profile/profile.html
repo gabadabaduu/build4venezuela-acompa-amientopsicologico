@@ -3,92 +3,35 @@
 
   @if (loading()) {
     <p>Cargando perfil...</p>
+  } @else if (!profile()) {
+    <p>No se encontró una ficha asociada a este usuario.</p>
   } @else {
-    <div class="form">
-      <label>
-        Nombre completo
-        <input
-          type="text"
-          [ngModel]="fullName()"
-          (ngModelChange)="fullName.set($event)"
-          name="fullName"
-        />
-      </label>
+    @if (profile(); as p) {
+      <section class="section-card pro-card">
+        <h2>Ficha del profesional</h2>
 
-      <label>
-        Teléfono
-        <input
-          type="tel"
-          [ngModel]="phone()"
-          (ngModelChange)="phone.set($event)"
-          name="phone"
-        />
-      </label>
+        <div class="pro-header">
+          <img
+            class="pro-photo"
+            [src]="p.photo_url || 'https://via.placeholder.com/120x120?text=Foto'"
+            alt="Fotografía del profesional"
+          />
 
-      <label>
-        Biografía
-        <textarea
-          [ngModel]="bio()"
-          (ngModelChange)="bio.set($event)"
-          name="bio"
-          rows="4"
-        ></textarea>
-      </label>
+          <div class="pro-main">
+            <p><strong>Nombre del profesional:</strong> {{ p.professional_name || p.full_name || 'No definido' }}</p>
+            <p><strong>Especialización:</strong> {{ p.specialty || 'No definida' }}</p>
+          </div>
+        </div>
 
-      @if (profile(); as p) {
-        <p class="role">
-          Rol: {{ p.role === 'psychologist' ? 'Psicólogo/a' : 'Paciente' }}
-        </p>
-
-        @if (p.role === 'psychologist') {
-          <section class="section-card pro-card">
-            <h2>Perfil profesional</h2>
-
-            <div class="pro-header">
-              <img
-                class="pro-photo"
-                [src]="p.photo_url || 'https://via.placeholder.com/120x120?text=Foto'"
-                alt="Fotografía del profesional"
-              />
-
-              <div class="pro-main">
-                <p>
-                  <strong>Nombre del profesional:</strong>
-                  {{ p.professional_name || p.full_name || 'No definido' }}
-                </p>
-                <p>
-                  <strong>Especialización:</strong>
-                  {{ p.specialty || 'No definida' }}
-                </p>
-              </div>
-            </div>
-
-            <p>
-              <strong>Presentación:</strong>
-              {{ p.presentation || 'Sin presentación aún.' }}
-            </p>
-
-            <p>
-              <strong>Horario disponible:</strong>
-              {{ p.available_schedule || 'No definido' }}
-            </p>
-
-            <p>
-              <strong>Orientación en las sesiones:</strong>
-              {{ p.session_orientation || 'No definida' }}
-            </p>
-          </section>
-        }
-      }
+        <p><strong>Presentación:</strong> {{ p.presentation || 'Sin presentación aún.' }}</p>
+        <p><strong>Horario disponible:</strong> {{ p.available_schedule || 'No definido' }}</p>
+        <p><strong>Orientación en las sesiones:</strong> {{ p.session_orientation || 'No definida' }}</p>
+      </section>
 
       @if (message()) {
         <p class="message">{{ message() }}</p>
       }
-
-      <button (click)="save()" [disabled]="saving()">
-        {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
-      </button>
-    </div>
+    }
   }
 
   <section class="section-card">
