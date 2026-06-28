@@ -22,7 +22,7 @@ CREATE TABLE sessions (
   patient_id UUID NOT NULL REFERENCES profiles(id),
   psychologist_id UUID REFERENCES profiles(id),
   scheduled_at TIMESTAMPTZ,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'completed')),
+  status TEXT NOT NULL DEFAULT 'not_assigned' CHECK (status IN ('not_assigned', 'pending', 'accepted', 'rejected', 'completed')),
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

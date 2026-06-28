@@ -8,6 +8,18 @@ export class SessionService {
   private readonly supabase = inject(SupabaseService);
   private readonly auth = inject(AuthService);
 
+  async listUnassigned(): Promise<Session[]> {
+    const { data, error } = await this.supabase.client
+      .from('sessions')
+      .select('*')
+      .eq('status', 'not_assigned')
+      .is('psychologist_id', null)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data ?? [];
+  }
+
   async getMySessions(): Promise<Session[]> {
     const user = this.auth.currentUser();
     if (!user) throw new Error('Not authenticated');

@@ -1,4 +1,4 @@
-export type SessionStatus = 'pending' | 'accepted' | 'rejected' | 'completed';
+export type SessionStatus = 'not_assigned' | 'pending' | 'accepted' | 'rejected' | 'completed';
 
 export interface Session {
   id: string;
