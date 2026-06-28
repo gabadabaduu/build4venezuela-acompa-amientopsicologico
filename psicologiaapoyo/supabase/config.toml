@@ -1,0 +1,30 @@
+# Supabase local config. See: https://supabase.com/docs/guides/cli/config
+project_id = "psicologiaapoyo"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[functions.create-session]
+verify_jwt = false
+
+[functions.whatsapp-webhook]
+verify_jwt = false
+
+[functions.assign-volunteer]
+verify_jwt = true

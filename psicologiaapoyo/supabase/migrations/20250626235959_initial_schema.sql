@@ -1,41 +1,32 @@
--- SQL para configurar Supabase como backend de PsicologiaApoyo
--- Ejecutar en el SQL Editor de Supabase (https://supabase.com/dashboard)
+-- Base schema: profiles, sessions, resources, RLS
+-- Must run before guest_sessions (which references profiles)
 
--- 1. Extensión UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Tabla de perfiles (1:1 con auth.users)
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('patient', 'psychologist')),
   phone TEXT,
   bio TEXT,
   avatar_url TEXT,
-  professional_name TEXT,
-  specialty TEXT,
-  presentation TEXT,
-  available_schedule TEXT,
-  photo_url TEXT,
-  session_orientation TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 3. Tabla de sesiones
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   patient_id UUID NOT NULL REFERENCES profiles(id),
   psychologist_id UUID REFERENCES profiles(id),
   scheduled_at TIMESTAMPTZ,
-  status TEXT NOT NULL DEFAULT 'not_assigned' CHECK (status IN ('not_assigned', 'pending', 'accepted', 'rejected', 'completed')),
+  status TEXT NOT NULL DEFAULT 'not_assigned'
+    CHECK (status IN ('not_assigned', 'pending', 'accepted', 'rejected', 'completed')),
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 4. Tabla de recursos
-CREATE TABLE resources (
+CREATE TABLE IF NOT EXISTS resources (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   description TEXT,
@@ -47,7 +38,6 @@ CREATE TABLE resources (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 5. Triggers para updated_at
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -56,43 +46,56 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER sessions_updated_at BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER resources_updated_at BEFORE UPDATE ON resources FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
+CREATE TRIGGER profiles_updated_at
+  BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- 6. Row Level Security (RLS)
+DROP TRIGGER IF EXISTS sessions_updated_at ON sessions;
+CREATE TRIGGER sessions_updated_at
+  BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS resources_updated_at ON resources;
+CREATE TRIGGER resources_updated_at
+  BEFORE UPDATE ON resources FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
 
--- POLICIES: Profiles
+DROP POLICY IF EXISTS "Profiles are viewable by authenticated users" ON profiles;
 CREATE POLICY "Profiles are viewable by authenticated users"
   ON profiles FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile"
   ON profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
 
--- POLICIES: Sessions
+DROP POLICY IF EXISTS "Patients see own sessions" ON sessions;
 CREATE POLICY "Patients see own sessions"
   ON sessions FOR SELECT TO authenticated USING (patient_id = auth.uid());
 
+DROP POLICY IF EXISTS "Psychologists see assigned sessions" ON sessions;
 CREATE POLICY "Psychologists see assigned sessions"
   ON sessions FOR SELECT TO authenticated USING (psychologist_id = auth.uid());
 
+DROP POLICY IF EXISTS "Patients create sessions" ON sessions;
 CREATE POLICY "Patients create sessions"
   ON sessions FOR INSERT TO authenticated
   WITH CHECK (patient_id = auth.uid());
 
+DROP POLICY IF EXISTS "Psychologists update assigned sessions" ON sessions;
 CREATE POLICY "Psychologists update assigned sessions"
   ON sessions FOR UPDATE TO authenticated
   USING (psychologist_id = auth.uid());
 
--- POLICIES: Resources
+DROP POLICY IF EXISTS "Anyone can read published resources" ON resources;
 CREATE POLICY "Anyone can read published resources"
   ON resources FOR SELECT TO authenticated USING (published = true);
 
+DROP POLICY IF EXISTS "Author manages own resources" ON resources;
 CREATE POLICY "Author manages own resources"
   ON resources FOR ALL TO authenticated USING (author_id = auth.uid());
