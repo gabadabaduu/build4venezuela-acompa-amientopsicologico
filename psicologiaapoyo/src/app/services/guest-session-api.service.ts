@@ -13,9 +13,16 @@ export class GuestSessionApiService {
     request: CreateGuestSessionRequest,
     idempotencyKey?: string,
   ): Promise<CreateGuestSessionResult> {
+    const apiKey = environment.supabase.publicApiKey?.trim();
+    if (!apiKey || apiKey === 'replace-with-your-public-api-key') {
+      throw new Error(
+        'Configura publicApiKey en environment.ts con el mismo valor que PUBLIC_API_KEY en Supabase.',
+      );
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-API-Key': environment.supabase.publicApiKey,
+      'X-API-Key': apiKey,
     };
 
     if (idempotencyKey) {

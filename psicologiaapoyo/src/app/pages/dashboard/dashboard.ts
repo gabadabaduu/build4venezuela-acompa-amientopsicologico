@@ -37,7 +37,6 @@ export class DashboardPage implements OnInit {
   assigningId = signal<string | null>(null);
 
   scheduledAt = signal('');
-  notes = signal('');
   creating = signal(false);
 
   hotlineName = signal('');
@@ -109,10 +108,8 @@ export class DashboardPage implements OnInit {
       await this.sessionService.createSession({
         patient_id: user.id,
         scheduled_at: this.scheduledAt(),
-        notes: this.notes(),
       });
       this.scheduledAt.set('');
-      this.notes.set('');
       await this.loadDashboard();
     } catch {
       // silently fail

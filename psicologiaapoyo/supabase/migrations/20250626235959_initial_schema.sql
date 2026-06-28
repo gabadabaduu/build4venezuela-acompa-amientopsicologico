@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS sessions (
   scheduled_at TIMESTAMPTZ,
   status TEXT NOT NULL DEFAULT 'not_assigned'
     CHECK (status IN ('not_assigned', 'pending', 'accepted', 'rejected', 'completed')),
-  notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

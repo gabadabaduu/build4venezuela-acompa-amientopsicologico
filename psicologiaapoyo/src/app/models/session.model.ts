@@ -3,10 +3,9 @@ export type SessionStatus = 'not_assigned' | 'pending' | 'accepted' | 'rejected'
 export interface Session {
   id: string;
   patient_id: string;
-  psychologist_id?: string;
-  scheduled_at?: string;
+  psychologist_id: string | null;
+  scheduled_at: string | null;
   status: SessionStatus;
-  notes?: string;
   created_at: string;
   updated_at: string;
 }

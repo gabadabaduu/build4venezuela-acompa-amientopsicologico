@@ -4,8 +4,13 @@ import { AuthError, verifyMetaSignature, verifyWhatsAppChallenge } from '../_sha
 import { errorResponse, jsonResponse } from '../_shared/cors.ts';
 import { notifySessionCreated, sendWhatsAppReply } from '../_shared/notifications.ts';
 import { enforceWhatsAppRateLimits, RateLimitError } from '../_shared/rate-limit.ts';
-import { createGuestSession, createServiceClient } from '../_shared/supabase-client.ts';
 import {
+  assertNoActiveGuestSessionByContact,
+  createGuestSession,
+  createServiceClient,
+} from '../_shared/supabase-client.ts';
+import {
+  ActiveGuestSessionError,
   extractGuestNameFromMessage,
   normalizeWhatsAppPhone,
   ValidationError,
@@ -51,6 +56,9 @@ Deno.serve(async (req) => {
             message.from,
             'Has alcanzado el límite diario de solicitudes. Intenta mañana.',
           );
+        }
+        if (error instanceof ActiveGuestSessionError) {
+          await sendWhatsAppReply(message.from, error.message);
         }
       }
     }
@@ -101,8 +109,6 @@ async function handleWhatsAppMessage(
       [
         'Hola. Para solicitar una sesión responde con:',
         'nombre: Tu Nombre',
-        '',
-        'También puedes agregar detalles en el mismo mensaje.',
       ].join('\n'),
     );
     return 0;
@@ -110,10 +116,11 @@ async function handleWhatsAppMessage(
 
   const full_name = extractGuestNameFromMessage(body) ?? 'Usuario WhatsApp';
 
+  await assertNoActiveGuestSessionByContact(supabase, { phone });
+
   const session = await createGuestSession(supabase, {
     full_name,
     phone,
-    notes: body,
     source: 'whatsapp',
     external_id: `wa:${message.id}`,
   });

@@ -44,7 +44,7 @@ export class SessionService {
     return data ?? [];
   }
 
-  async createSession(session: Pick<Session, 'patient_id' | 'scheduled_at' | 'notes'>) {
+  async createSession(session: Pick<Session, 'patient_id' | 'scheduled_at'>) {
     const { data, error } = await this.supabase.client
       .from('sessions')
       .insert(session)

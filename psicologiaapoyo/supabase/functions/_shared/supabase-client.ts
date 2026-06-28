@@ -1,8 +1,11 @@
 import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { ActiveGuestSessionError } from './validation.ts';
 import {
   DEFAULT_SESSION_STATUS,
+  type GuestAgeRange,
   type GuestSessionRow,
   type GuestSessionSource,
+  type GuestUrgency,
 } from './session-types.ts';
 
 export function createServiceClient(): SupabaseClient {
@@ -25,9 +28,8 @@ export interface GuestSessionInput {
   full_name: string;
   phone?: string;
   email?: string;
-  notes?: string;
-  age_range?: string;
-  urgency?: string;
+  age_range?: GuestAgeRange;
+  urgency?: GuestUrgency;
   source: GuestSessionSource;
   external_id?: string;
 }
@@ -44,7 +46,6 @@ export async function createGuestSession(
       email: input.email ?? null,
       scheduled_at: null,
       status: DEFAULT_SESSION_STATUS,
-      notes: input.notes ?? null,
       age_range: input.age_range ?? null,
       urgency: input.urgency ?? null,
       source: input.source,
@@ -68,4 +69,30 @@ export async function createGuestSession(
   }
 
   return data as GuestSessionRow;
+}
+
+export async function assertNoActiveGuestSessionByContact(
+  supabase: SupabaseClient,
+  contact: { phone?: string; email?: string },
+): Promise<void> {
+  const { phone, email } = contact;
+  if (!phone && !email) return;
+
+  let query = supabase
+    .from('guest_sessions')
+    .select('id')
+    .neq('status', 'completed')
+    .limit(1);
+
+  if (phone && email) {
+    query = query.or(`phone.eq.${phone},email.eq.${email}`);
+  } else if (phone) {
+    query = query.eq('phone', phone);
+  } else if (email) {
+    query = query.eq('email', email);
+  }
+
+  const { data, error } = await query.maybeSingle();
+  if (error) throw error;
+  if (data) throw new ActiveGuestSessionError();
 }

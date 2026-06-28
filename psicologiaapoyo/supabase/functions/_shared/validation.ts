@@ -8,7 +8,6 @@ export interface CreateSessionBody {
   full_name: string;
   phone?: string;
   email?: string;
-  notes?: string;
   age_range: string;
   urgency: string;
 }
@@ -25,9 +24,6 @@ export function parseCreateSessionBody(raw: unknown): CreateSessionBody {
   const email = body.email === undefined || body.email === null || body.email === ''
     ? undefined
     : normalizeEmail(body.email);
-  const notes = body.notes === undefined || body.notes === null || body.notes === ''
-    ? undefined
-    : normalizeText(body.notes, 'notes', MAX_NOTES);
 
   if (full_name.length > MAX_NAME) {
     throw new ValidationError(`full_name must be at most ${MAX_NAME} characters`);
@@ -36,7 +32,7 @@ export function parseCreateSessionBody(raw: unknown): CreateSessionBody {
   const age_range = normalizeEnum(body.age_range, 'age_range', AGE_RANGES);
   const urgency = normalizeEnum(body.urgency, 'urgency', URGENCIES);
 
-  return { full_name, phone, email, notes, age_range, urgency };
+  return { full_name, phone, email, age_range, urgency };
 }
 
 function normalizeEnum(value: unknown, field: string, allowed: string[]): string {
@@ -53,10 +49,18 @@ export class ValidationError extends Error {
   }
 }
 
+export class ActiveGuestSessionError extends Error {
+  constructor(
+    message = 'Ya existe una solicitud de sesión activa con este teléfono o correo electrónico. Espera a que se complete antes de crear una nueva.',
+  ) {
+    super(message);
+    this.name = 'ActiveGuestSessionError';
+  }
+}
+
 const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_NAME = 120;
-const MAX_NOTES = 2000;
 
 function normalizeText(value: unknown, field: string, max = MAX_NAME): string {
   if (typeof value !== 'string' || !value.trim()) {

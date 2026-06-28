@@ -4,6 +4,9 @@ export const DEFAULT_SESSION_STATUS: SessionStatus = 'not_assigned';
 
 export type GuestSessionSource = 'web' | 'whatsapp';
 
+export type GuestAgeRange = 'under_10' | '11_18' | '19_30' | '31_50' | 'over_50';
+export type GuestUrgency = 'high' | 'medium' | 'low';
+
 export interface GuestSessionRow {
   id: string;
   full_name: string;
@@ -11,9 +14,8 @@ export interface GuestSessionRow {
   email: string | null;
   scheduled_at: string | null;
   status: SessionStatus;
-  notes: string | null;
-  age_range: string | null;
-  urgency: string | null;
+  age_range: GuestAgeRange | null;
+  urgency: GuestUrgency | null;
   source: GuestSessionSource;
   external_id: string | null;
   volunteer_id: string | null;
@@ -27,7 +29,6 @@ export interface RegisteredSessionRow {
   psychologist_id: string | null;
   scheduled_at: string | null;
   status: SessionStatus;
-  notes: string | null;
   created_at: string;
   updated_at: string;
 }

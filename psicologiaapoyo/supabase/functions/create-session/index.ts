@@ -5,11 +5,12 @@ import { corsHeaders, errorResponse, handleOptions, jsonResponse } from '../_sha
 import { notifySessionCreated } from '../_shared/notifications.ts';
 import { clientIp, enforceWebRateLimits, RateLimitError } from '../_shared/rate-limit.ts';
 import {
+  assertNoActiveGuestSessionByContact,
   createGuestSession,
   createServiceClient,
   publicGuestSessionPayload,
 } from '../_shared/supabase-client.ts';
-import { parseCreateSessionBody, ValidationError } from '../_shared/validation.ts';
+import { ActiveGuestSessionError, parseCreateSessionBody, ValidationError } from '../_shared/validation.ts';
 
 const MAX_BODY_BYTES = 8_192;
 
@@ -42,6 +43,11 @@ Deno.serve(async (req) => {
 
     await enforceWebRateLimits(supabase, clientIp(req), payload.phone, payload.email);
 
+    await assertNoActiveGuestSessionByContact(supabase, {
+      phone: payload.phone,
+      email: payload.email,
+    });
+
     const idempotencyKey = req.headers.get('idempotency-key')?.trim();
     const external_id = idempotencyKey ? `web:${idempotencyKey}` : undefined;
 
@@ -64,6 +70,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     if (error instanceof AuthError) return errorResponse(error.message, 401, headers);
     if (error instanceof ValidationError) return errorResponse(error.message, 400, headers);
+    if (error instanceof ActiveGuestSessionError) return errorResponse(error.message, 409, headers);
     if (error instanceof RateLimitError) {
       return errorResponse('Too many requests. Try again later.', 429, headers);
     }

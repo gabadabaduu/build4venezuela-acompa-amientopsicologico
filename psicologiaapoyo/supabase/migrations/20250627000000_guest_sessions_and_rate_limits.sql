@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS guest_sessions (
   scheduled_at TIMESTAMPTZ,
   status TEXT NOT NULL DEFAULT 'not_assigned'
     CHECK (status IN ('not_assigned', 'pending', 'accepted', 'rejected', 'completed')),
-  notes TEXT,
   source TEXT NOT NULL CHECK (source IN ('web', 'whatsapp')),
   external_id TEXT UNIQUE,
   volunteer_id UUID REFERENCES profiles(id),

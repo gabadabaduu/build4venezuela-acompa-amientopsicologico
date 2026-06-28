@@ -3,7 +3,7 @@ export type ResourceType = 'article' | 'exercise' | 'guide';
 export interface Resource {
   id: string;
   title: string;
-  description?: string;
+  description: string | null;
   content: string;
   type: ResourceType;
   author_id: string;

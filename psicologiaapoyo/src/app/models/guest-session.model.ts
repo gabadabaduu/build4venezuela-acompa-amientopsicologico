@@ -3,12 +3,12 @@ import type { Session } from './session.model';
 
 export type GuestAgeRange = 'under_10' | '11_18' | '19_30' | '31_50' | 'over_50';
 export type GuestUrgency = 'high' | 'medium' | 'low';
+export type GuestSessionSource = 'web' | 'whatsapp';
 
 export interface CreateGuestSessionRequest {
   full_name: string;
   phone?: string;
   email?: string;
-  notes?: string;
   age_range: GuestAgeRange;
   urgency: GuestUrgency;
 }
@@ -20,10 +20,10 @@ export interface GuestSession {
   email: string | null;
   scheduled_at: string | null;
   status: SessionStatus;
-  notes: string | null;
   age_range: GuestAgeRange | null;
   urgency: GuestUrgency | null;
-  source: 'web' | 'whatsapp';
+  source: GuestSessionSource;
+  external_id: string | null;
   volunteer_id: string | null;
   created_at: string;
   updated_at: string;
