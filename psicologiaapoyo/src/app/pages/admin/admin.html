@@ -23,9 +23,7 @@
     <section class="volunteers">
       <div class="volunteers-header">
         <h2 class="form-section">Psicólogos registrados</h2>
-        <button type="button" class="primary-btn" (click)="openModal()">
-          + Agregar psicólogo
-        </button>
+        <button type="button" class="primary-btn" (click)="openModal()">+ Agregar psicólogo</button>
       </div>
 
       @if (error() && !showModal()) {
@@ -63,7 +61,6 @@
     </section>
 
     <div class="actions">
-      <a routerLink="/dashboard">Ir al inicio</a>
       <button type="button" class="link-btn" (click)="signOut()">Cerrar sesión</button>
     </div>
   </div>
