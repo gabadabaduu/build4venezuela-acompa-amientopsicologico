@@ -1,6 +1,7 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
 import { GuestSessionService } from '../../services/guest-session.service';
@@ -52,6 +53,7 @@ export class ProfilePage {
   private readonly profileService = inject(ProfileService);
   private readonly guestSessionService = inject(GuestSessionService);
   private readonly sessionService = inject(SessionService);
+  private readonly router = inject(Router);
 
   readonly studiesOptions = Object.entries(STUDIES_STATUS_LABELS) as [StudiesStatus, string][];
   readonly tabs: { id: ProfileTab; label: string }[] = [
@@ -103,6 +105,8 @@ export class ProfilePage {
   scheduleSaving = signal(false);
   scheduleError = signal('');
   scheduleCalendarUrl = signal('');
+
+   isLoggedIn = computed(() => !!this.auth.currentUser());
 
   constructor() {
     effect(() => {
@@ -178,6 +182,12 @@ export class ProfilePage {
       this.sessionsLoading.set(false);
     }
   }
+
+    async onnav() {
+  if (this.isLoggedIn()) {
+    this.router.navigate(['/dashboard']);
+  }
+}
 
   private buildMySessions(guest: GuestSession[], registered: Session[]): VolunteerSessionView[] {
     const views = [

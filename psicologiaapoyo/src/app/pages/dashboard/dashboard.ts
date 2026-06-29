@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GuestSessionService } from '../../services/guest-session.service';
+import { Profile} from '../../models/user.model';
 import { GuestSessionApiService } from '../../services/guest-session-api.service';
 import { ProfileService } from '../../services/profile.service';
 import { SessionService } from '../../services/session.service';
@@ -48,6 +49,9 @@ export class DashboardPage implements OnInit {
   hotlineError = signal('');
   hotlineContactError = signal(false);
   hotlineSuccess = signal(false);
+  volunteerProfiles = signal<Profile[]>([]);
+  volunteersLoading = signal(false);
+  volunteersError = signal('');
 
   isLoggedIn = computed(() => !!this.auth.currentUser());
 
@@ -55,40 +59,67 @@ export class DashboardPage implements OnInit {
     this.loadDashboard();
   }
 
-  async loadDashboard() {
-    this.loading.set(true);
-    try {
-      const user = this.auth.currentUser();
-      if (!user) return;
+async loadDashboard() {
+  this.loading.set(true);
+  this.volunteersLoading.set(true);
+  this.volunteersError.set('');
 
-      const profile = await this.profileService.getProfile(user.id);
-      const volunteer = profile?.role === 'volunteer';
-      this.isVolunteer.set(volunteer);
-
-      if (volunteer) {
-        const [assigned, unassignedGuest, unassignedRegistered, assignedGuest] = await Promise.all([
-          this.sessionService.getMySessions(),
-          this.guestSessionService.listUnassigned(),
-          this.sessionService.listUnassigned(),
-          this.guestSessionService.listAssignedToMe(user.id),
-        ]);
-        this.sessions.set(assigned);
-        this.guestSessions.set(assignedGuest);
-        this.unassignedGuestSessions.set(unassignedGuest);
-        this.unassignedSessions.set(unassignedRegistered);
-      } else {
-        const data = await this.sessionService.getMySessions();
-        this.sessions.set(data);
-        this.guestSessions.set([]);
-        this.unassignedGuestSessions.set([]);
-        this.unassignedSessions.set([]);
-      }
-    } catch {
-      // silently fail
-    } finally {
-      this.loading.set(false);
+  try {
+    const user = this.auth.currentUser();
+    if (!user) {
+      this.sessions.set([]);
+      this.guestSessions.set([]);
+      this.unassignedGuestSessions.set([]);
+      this.unassignedSessions.set([]);
+      this.volunteerProfiles.set([]);
+      this.activeVolunteerIndex.set(0);
+      return;
     }
+
+    // Cargar perfil del usuario actual + listado de voluntarios en paralelo
+    const [profile, volunteers] = await Promise.all([
+      this.profileService.getProfile(user.id),
+      this.profileService.listVolunteerProfiles(),
+    ]);
+
+    const volunteer = profile?.role === 'volunteer';
+    this.isVolunteer.set(volunteer);
+
+    // Voluntarios para la sección pública de servicios
+    this.volunteerProfiles.set(
+      (volunteers ?? []).filter(
+        (v) => !!(v.full_name || v.professional_name || v.specialty || v.presentation),
+      ),
+    );
+     this.activeVolunteerIndex.set(0);
+
+    if (volunteer) {
+      const [assigned, unassignedGuest, unassignedRegistered, assignedGuest] = await Promise.all([
+        this.sessionService.getMySessions(),
+        this.guestSessionService.listUnassigned(),
+        this.sessionService.listUnassigned(),
+        this.guestSessionService.listAssignedToMe(user.id),
+      ]);
+      this.sessions.set(assigned);
+      this.guestSessions.set(assignedGuest);
+      this.unassignedGuestSessions.set(unassignedGuest);
+      this.unassignedSessions.set(unassignedRegistered);
+    } else {
+      const data = await this.sessionService.getMySessions();
+      this.sessions.set(data);
+      this.guestSessions.set([]);
+      this.unassignedGuestSessions.set([]);
+      this.unassignedSessions.set([]);
+    }
+  } catch (err: unknown) {
+    this.volunteersError.set(
+      err instanceof Error ? err.message : 'No se pudo cargar el dashboard.',
+    );
+  } finally {
+    this.loading.set(false);
+    this.volunteersLoading.set(false);
   }
+}
 
   async onAuthAction() {
   if (this.isLoggedIn()) {
@@ -99,6 +130,11 @@ export class DashboardPage implements OnInit {
   }
 }
 
+  async onnav() {
+  if (this.isLoggedIn()) {
+    this.router.navigate(['/profile']);
+  }
+}
 
   async createSession() {
     const user = this.auth.currentUser();
@@ -202,5 +238,28 @@ export class DashboardPage implements OnInit {
       completed: 'Completada',
     };
     return labels[status];
+  }
+
+    activeVolunteerIndex = signal(0);
+
+  currentVolunteer = computed(() => {
+    const list = this.volunteerProfiles();
+    if (!list.length) return null;
+    const i = Math.min(this.activeVolunteerIndex(), list.length - 1);
+    return list[i] ?? null;
+  });
+
+  nextVolunteer() {
+    const list = this.volunteerProfiles();
+    if (!list.length) return;
+    this.activeVolunteerIndex.set((this.activeVolunteerIndex() + 1) % list.length);
+  }
+
+  prevVolunteer() {
+    const list = this.volunteerProfiles();
+    if (!list.length) return;
+    this.activeVolunteerIndex.set(
+      (this.activeVolunteerIndex() - 1 + list.length) % list.length
+    );
   }
 }

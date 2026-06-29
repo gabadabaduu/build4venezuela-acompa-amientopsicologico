@@ -1,8 +1,13 @@
 <div class="support-page">
+<div class="top-actions">
   <button class="auth-btn" (click)="onAuthAction()">
     {{ isLoggedIn() ? 'Cerrar sesión' : 'Iniciar sesión' }}
   </button>
 
+  @if (isLoggedIn()) {
+    <button class="profile-btn" (click)="onnav()">Panel de Acción</button>
+  }
+</div>
   <header class="hero">
     <div class="hero__content">
       <p class="eyebrow">Acompañamiento Psicológico</p>
@@ -130,20 +135,40 @@
           Reserva una sesión de acompañamiento psicológico con nuestro equipo a través de Google
           Calendar.
         </p>
+         <div class="team-note">
+          <h4>Profesionales disponibles</h4>
 
-        <div class="calendar-box">
-          <p class="calendar-box__title">Disponibilidad semanal</p>
-          <p class="calendar-box__desc">Selecciona fecha y hora según el profesional disponible.</p>
+          @if (volunteersLoading()) {
+            <p>Cargando voluntarios...</p>
+          } @else if (volunteersError()) {
+            <p>{{ volunteersError() }}</p>
+          } @else if (!currentVolunteer()) {
+            <p>No hay voluntarios publicados por ahora.</p>
+          } @else {
+            @if (currentVolunteer(); as v) {
+              <div class="vol-carousel">
+                <button type="button" class="carousel-nav" (click)="prevVolunteer()" aria-label="Anterior">
+                  ‹
+                </button>
 
-          <!-- Reemplaza el href con tu enlace real de Google Calendar Appointment Schedule -->
-          <a
-            class="calendar-btn"
-            href="https://calendar.google.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Agendar en Google Calendar
-          </a>
+                <article class="vol-card">
+                  <p class="vol-name">{{ v.professional_name || v.full_name }}</p>
+                  <p><strong>Especialidad:</strong> {{ v.specialty || 'No especificada' }}</p>
+                  <p><strong>Presentación:</strong> {{ v.presentation || 'Sin presentación' }}</p>
+                  <p><strong>Disponibilidad:</strong> {{ v.available_schedule || 'No especificada' }}</p>
+                  <p><strong>Lugar:</strong> {{ v.place || 'No especificado' }}</p>
+                </article>
+
+                <button type="button" class="carousel-nav" (click)="nextVolunteer()" aria-label="Siguiente">
+                  ›
+                </button>
+              </div>
+
+              <p class="carousel-indicator">
+                {{ activeVolunteerIndex() + 1 }} / {{ volunteerProfiles().length }}
+              </p>
+            }
+          }
         </div>
 
         <div class="team-note">

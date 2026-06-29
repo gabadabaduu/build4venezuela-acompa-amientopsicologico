@@ -28,4 +28,15 @@ export class ProfileService {
     if (error) throw error;
     return data as Profile;
   }
+
+    async listVolunteerProfiles(): Promise<Profile[]> {
+    const { data, error } = await this.supabase.client
+      .from('profiles')
+      .select('*')
+      .eq('role', 'volunteer')
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []) as Profile[];
+  }
 }
