@@ -1,17 +1,20 @@
 export const corsHeaders = (origin: string | null): Record<string, string> => {
-  const allowed = (Deno.env.get('ALLOWED_ORIGINS') ?? 'http://localhost:4200')
+  const allowed = (
+    Deno.env.get('ALLOWED_ORIGINS') ??
+    'http://localhost:4200,https://build4venezuela-acompa-amientopsicologico.onrender.com'
+  )
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean);
 
-  const allowOrigin =
-    origin && allowed.includes(origin) ? origin : allowed[0] ?? 'http://localhost:4200';
+  const isAllowed = !!origin && allowed.includes(origin);
 
   return {
-    'Access-Control-Allow-Origin': allowOrigin,
+    ...(isAllowed ? { 'Access-Control-Allow-Origin': origin } : {}),
     'Access-Control-Allow-Headers':
       'authorization, x-api-key, x-client-info, apikey, content-type, idempotency-key',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
   };
 };
 
