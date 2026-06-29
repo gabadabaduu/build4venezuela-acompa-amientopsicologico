@@ -23,6 +23,7 @@ export interface Profile {
   studies_status: StudiesStatus | null;
   professional_registry_number: string | null;
   place: string | null;
+  google_calendar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -58,6 +59,7 @@ export interface CreateProfileUserRequest {
   studies_status?: StudiesStatus;
   professional_registry_number?: string;
   place?: string;
+  google_calendar_url?: string;
 }
 
 export interface CreateProfileUserResult {
@@ -76,6 +78,8 @@ export interface CreateProfileUserResult {
     | 'place'
     | 'studies_status'
     | 'professional_registry_number'
+    | 'place'
+    | 'google_calendar_url'
     | 'created_at'
   >;
 }
