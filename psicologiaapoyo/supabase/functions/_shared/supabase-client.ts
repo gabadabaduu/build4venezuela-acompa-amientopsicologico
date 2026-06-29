@@ -105,7 +105,8 @@ export class DuplicateUserError extends Error {
 }
 
 function generateTemporaryPassword(): string {
-  const bytes = new Uint8Array(24);
+  // 4 bytes -> 8 hex chars (meets the 8-char minimum, easy to read and share).
+  const bytes = new Uint8Array(4);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }

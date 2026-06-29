@@ -200,30 +200,75 @@ select:focus {
   padding: 10px 12px;
 }
 
-.temp-password {
+/* Credentials view (shown after a volunteer is created) */
+.credentials {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 24px 0;
+}
+
+.credentials .success {
+  margin: 0 0 16px;
+}
+
+.cred-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
   margin-top: 12px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 10px;
-  padding: 10px 12px;
 }
 
-.temp-password p {
-  margin: 0 0 6px;
-  font-size: 0.85rem;
-  color: #92400e;
+.cred-field {
+  flex: 1;
+  min-width: 0;
 }
 
-.temp-password code {
+.cred-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.cred-field code {
   display: block;
   word-break: break-all;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9rem;
   color: #0f172a;
-  background: #ffffff;
-  border: 1px solid #fde68a;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 9px 11px;
+}
+
+.copy-btn {
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.welcome-box {
+  margin-top: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #0f172a;
+  background: #f8fafc;
 }
 
 .volunteers {

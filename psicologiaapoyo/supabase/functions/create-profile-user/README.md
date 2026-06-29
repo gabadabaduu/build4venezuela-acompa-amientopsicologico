@@ -120,7 +120,7 @@ apikey: <supabase_anon_key>
 
 - Every new user is created with `user_metadata.must_change_password: true`. On first login the app redirects to `/change-password` and blocks `/profile` and `/admin` until they set a new password.
 - If `password` is sent: used as-is (min 8 characters). Not returned in the response. The user must still change it on first login.
-- If `password` is omitted: a random 48-character hex password is generated and returned once as `temporary_password`.
+- If `password` is omitted: a random 8-character hex password is generated and returned once as `temporary_password`.
 - Response includes `must_change_password: true` for all newly created users.
 
 ## Deploy
