@@ -66,32 +66,37 @@ async loadDashboard() {
 
   try {
     const user = this.auth.currentUser();
+
+    try {
+      const volunteers = await this.profileService.listVolunteerProfiles();
+      this.volunteerProfiles.set(
+        (volunteers ?? []).filter(
+          (v) => !!(v.full_name || v.professional_name || v.specialty || v.presentation),
+        ),
+      );
+      this.activeVolunteerIndex.set(0);
+    } catch (err: unknown) {
+      this.volunteerProfiles.set([]);
+      this.activeVolunteerIndex.set(0);
+      this.volunteersError.set(
+        err instanceof Error ? err.message : 'No se pudieron cargar los voluntarios.',
+      );
+    } finally {
+      this.volunteersLoading.set(false);
+    }
+
     if (!user) {
       this.sessions.set([]);
       this.guestSessions.set([]);
       this.unassignedGuestSessions.set([]);
       this.unassignedSessions.set([]);
-      this.volunteerProfiles.set([]);
-      this.activeVolunteerIndex.set(0);
+      this.isVolunteer.set(false);
       return;
     }
 
-    // Cargar perfil del usuario actual + listado de voluntarios en paralelo
-    const [profile, volunteers] = await Promise.all([
-      this.profileService.getProfile(user.id),
-      this.profileService.listVolunteerProfiles(),
-    ]);
-
+    const profile = await this.profileService.getProfile(user.id);
     const volunteer = profile?.role === 'volunteer';
     this.isVolunteer.set(volunteer);
-
-    // Voluntarios para la sección pública de servicios
-    this.volunteerProfiles.set(
-      (volunteers ?? []).filter(
-        (v) => !!(v.full_name || v.professional_name || v.specialty || v.presentation),
-      ),
-    );
-     this.activeVolunteerIndex.set(0);
 
     if (volunteer) {
       const [assigned, unassignedGuest, unassignedRegistered, assignedGuest] = await Promise.all([
@@ -117,7 +122,6 @@ async loadDashboard() {
     );
   } finally {
     this.loading.set(false);
-    this.volunteersLoading.set(false);
   }
 }
 
